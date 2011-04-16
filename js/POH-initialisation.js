@@ -7,7 +7,7 @@ function initDialogues(){
 	initDialogueStoppingInputs();
 }
 
-/*Gives a way to stop the confirmation dialogues appearing again */
+/*Provides a way to stop the confirmation dialogues appearing again */
 function initDialogueStoppingInputs(){
 	$('#confirmationDialogues .modalConfirmationButtons').each(function(){
 		$(this).after(createDialogueStoppingInputs($(this).attr("id")))
@@ -23,7 +23,7 @@ function initDialogueButtonEvents(){
 		
 		//remember the setting if the box is checked
 		if($('#demolishOnMoveButtonsCheck').is(':checked')){
-			$house.noConfirmation.demolishOnMove = true;
+			$house.noConfSettings.demolishOnMove.ignoreWarnings = true;
 			$house.noConfSettings.demolishOnMove.value = continueAnyway ? true : false;
 		}
 
@@ -38,14 +38,19 @@ function initDialogueButtonEvents(){
 /*Initialises triggers for buttons in various confirmation dialogues */
 function initTriggers(){
 	addMoveHouseTriggers();
+	//addBuildRoomTriggers();
 }
 
 /*-THE GIANT DIVs THAT HOUSE EVERYTHING */
 
 /*Creates the core DIVs that house everything */
 function initCoreDivs(){
-	var core = generateBorders('topBarBorder', 'topBar'); //'<div id="topBar"></div>';
+	var core = generateBorders('topBarBorder', 'topBar');
 	core += generateBorders('overviewBorder', 'houseOverview');
+	core += '<div id="pictureMode" class="hidden">';
+	core += generateBorders('pmImageBorder', 'pmImage');
+	core += generateBorders('pmInfoBorder', 'pmInfo');
+	core += '</div>';
 	core += generateBorders('infoPanelBorder', 'infoPanel');
 	$('#POHPlanner').html(core);
 }
@@ -64,10 +69,6 @@ function initTopBar(){
 	$('#moveHouseSouth').data('movementData', { xDirection: true, positiveDirection: true, compass : 'south' });
 	$('#moveHouseWest').data('movementData', { xDirection: false, positiveDirection: false, compass : 'west' });
 	$('#moveHouseEast').data('movementData', { xDirection: false, positiveDirection: true, compass : 'east' });
-	//xDirection="true" positiveDirection="false" compass="north"
-	//xDirection="true" positiveDirection="true" compass="south"
-	//xDirection="false" positiveDirection="false" compass="west"
-	//xDirection="false" positiveDirection="true" compass="east"
 	
 	//highlight the Sharing Code when it's box gets focus
 	//in Chrome / Safari, you need to drag the mouse slightly when you click for it to highlight
@@ -129,16 +130,13 @@ function initHouse() {
 /*Builds the default rooms for the house */
 function buildDefaultRooms(){
 	var code;
-	
 	//try loading a previous house design from a cookie
-	if($.cookie('pohPlannerSharingCode') != null){
+	if($.cookie('pohPlannerSharingCode') !== null){
 		code = $.cookie('pohPlannerSharingCode');
 		loadHouseFromSharingCode(code);
-		
 	} else { //or fall back to a default value and create a cookie
 		loadDefaultHouse();
 	}
-
 	//buildRoom(1, 4, 3, 1);
 	//buildRoom(1, 4, 4, 2);
 }
@@ -161,9 +159,12 @@ function initInfoPanel(){
 	//create content for the House Stats section
 	initHouseStatsContent();
 	
-	/*Detects when the drop-down list for the selected floor is changed and shows the newly slected floor */
+	//Detects when the drop-down list for the selected floor is changed and shows the newly slected floor 
 	$("#floorSelectDropDown").change(function(){
-		deselectAllRooms(); //so you can't demolish something you can't see and such
+		if($('#overviewBorder').is(':hidden')){
+			switchToOverviewMode();
+		}
+		deselectAllRooms(); //so you can't demolish something you can't see
 		hideSelectedOverviewFloor();
 		var index = $("#floorSelectDropDown option").index($("#floorSelectDropDown option:selected"));
 		$house.visibleOverviewFloor = index;

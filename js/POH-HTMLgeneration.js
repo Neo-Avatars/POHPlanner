@@ -187,6 +187,10 @@ function createInfoPanelFloorSelectDropDown(){
 Returns the HTML */
 function createInfoPanelFloorAndCharStatsContent(){
 	var content = '<table id="floorAndCharStatsTable">\
+	<tr id="facsTableR0" class="hidden">\
+		<td colspan="2"><input type="submit" value="Return to House Overview" onclick="switchToOverviewMode();return false;"\
+			id="returnToOverviewModeButton" title="Return to the House Overview mode" /></td>\
+	</tr>\
 	<tr title="Choose which floor of the house to view" id="facsTableR1">\
 		<td><span class="floorAndCharStatsHeading">View Floor: </span></td>\
 		<td>' + createInfoPanelFloorSelectDropDown() + '</td>\

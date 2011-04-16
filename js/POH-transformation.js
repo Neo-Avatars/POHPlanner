@@ -6,15 +6,11 @@
 function addMoveHouseTriggers(){
 	$('#moveHouseList li a').overlay({
 		onBeforeLoad : function(e){
-			//work out what triggered the event
+			//work out which direction the house will move in, visibly show this to the user, then actually perform the move
 			$trigger = this.getTrigger();
-			//fetch the values to pass to the function
-			var xDirection = $trigger.data('movementData').xDirection; //convertStringToBoolean($trigger.attr('xDirection'));
+			var xDirection = $trigger.data('movementData').xDirection;
 			var positiveDirection = $trigger.data('movementData').positiveDirection;
-			//convertStringToBoolean($trigger.attr('positiveDirection'));
-			//make the text in the error message correct
 			$('#moveHouseCompassDirection').html($trigger.data('movementData').compass);
-			//$trigger.attr('compass'));
 			return moveHouse(xDirection, positiveDirection);
 		},
 		closeOnClick : false,
@@ -35,10 +31,9 @@ function moveHouse(xDirection, positiveDirection){
 	var yChange = xDirection ? positiveDirection ? -1 : 1 : 0;
 	var xChange = xDirection ? 0 : positiveDirection ? -1 : 1;
 	
-	//if there's something in the way
 	if(hasRoomThatWouldBeDeletedByMove(xChange, yChange)){
 		//if you haven't chosen to stop the warning message
-		if(!$house.noConfirmation.demolishOnMove){
+		if(!$house.noConfSettings.demolishOnMove.ignoreWarnings){
 			//store the x and y changes encase the user wants to move the house anyway
 			$savedVariables.xChange = xChange;
 			$savedVariables.yChange = yChange;
@@ -50,7 +45,6 @@ function moveHouse(xDirection, positiveDirection){
 		}
 		return false;
 	} else {
-		//move the house
 		moveHouseConfirmed(xChange, yChange);
 		return false;
 	}
@@ -71,7 +65,7 @@ function moveHouseConfirmed(xChange, yChange){
 		}
 	}
 	
-	//calculate the Sharing Code for this trans house and load it	
+	switchToOverviewMode();
 	loadHouseFromSharingCode(calculateSharingCode(tempHouse));
 }
 
@@ -150,8 +144,6 @@ function transformHouseByMatrix(a, b, c, d){
 				transCoords = transformRoomByMatrix(j, k, a, b, c, d);
 				tempHouse[i][transCoords[0]][transCoords[1]] = houseArray[i][j][k];
 				if(houseArray[i][j][k].labelText !== ' '){
-					/*tempHouse[i][transCoords[0]][transCoords[1]].doorLayout = 
-						transformDoorOrientationByMatrix(houseArray[i][j][k].doorLayout, a, b, c, d);*/
 					tempHouse[i][transCoords[0]][transCoords[1]].doorLayout = 
 						transformDoorOrientation(houseArray[i][j][k].doorLayout, a, b, c, d);
 				}
@@ -159,7 +151,7 @@ function transformHouseByMatrix(a, b, c, d){
 		}
 	}
 	
-	//calculate the Sharing Code for this trans house and load it	
+	switchToOverviewMode();
 	loadHouseFromSharingCode(calculateSharingCode(tempHouse));
 	//console.timeEnd("transform");
 }
@@ -231,8 +223,7 @@ function transformRoomByMatrix(j, k, a, b, c, d){
 	//zero the coordinates of the center of the house
 	j -= 4;
 	k -= 4;
-	
-	//calculate the trans coordinates
+
 	var transCoords = transformPointByMatrix(j, k, a, b, c, d);
 	
 	//return an array with the moved coordinates in, moved back to the middle of the house
@@ -267,51 +258,124 @@ function rotateRoom(clockwise, i, j, k){
 	}
 	//update the room image to show that it's been rotated
 	changeRoomOverviewImage($house.csr[0], $house.csr[1], $house.csr[2]);
-	
-	//and update the Sharing Code
+
 	calculateSharingCode(houseArray);
 }
 
 
-/*-DOESN'T WORK AS WANTED, SO LEFT TO ROT FOR THE MOMENT  - SEE transformDoorOrientation() INSTEAD */
+/*-DOESN'T WORK AS WANTED, SO LEFT HERE TO COME BACK TO LATER  - SEE transformDoorOrientation() INSTEAD */
 
-/*Calculates the new door layout when the house is rotated by the specified 2x2 matrix
-Each door location is represented by one of the corners of a unit square
-This creates a 2x4 matrix (doorMatrix) which represents the four doors
-Returns the transformed door layout
+/*Code to use this:
+
+var doors = [false, true, true, true];
+	for(var i = -1; i < 2; i++){
+		for(var j = -1; j < 2; j++){
+			for(var k = -1; k < 2; k++){
+				for(var l = -1; l < 2; l++){
+					TrialtransformDoorOrientation(doors, i, j, k, l);
+				}
+			}
+		}
+	}
 */
-function transformDoorOrientationByMatrix(doorLayout, a, b, c, d){
-	var doorMatrix = getDoorMatrix();
-	var transDoorMatrix = getDoorMatrix();
+/*function TrialtransformDoorOrientation(doorLayout, a, b, c, d){
 	var transDoorLayout = new Array(4);
-	
-	//loop through the doors
-	for(var i = 0; i < 4; i++){
-		/*console.log(transformPointByMatrix(doorMatrix[i][0], doorMatrix[i][1], -a, -b, -c, -d) + " " +
-			doorMatrix[i]);
-		console.log(getDoorLayoutPosition(
-			transformPointByMatrix(doorMatrix[i][0], doorMatrix[i][1], -a, -b, -c, -d)) + " " +
-				getDoorLayoutPosition(doorMatrix[i]));
-		transDoorLayout[getDoorLayoutPosition(
-			transformPointByMatrix(doorMatrix[i][0], doorMatrix[i][1], -a, -b, -c, -d))] = doorLayout[i];*/
-		//set the location 
-		transDoorMatrix[i] = transformPointByMatrix(doorMatrix[i][0], doorMatrix[i][1], -a, -b, -c, -d);
+	var got = true;
+	if(a === 1 && b === 0 && c === 0 && d === -1){
+		//reflection in x-axis
+		console.log('x-axis:');
+		transDoorLayout[0] = doorLayout[2];
+		transDoorLayout[2] = doorLayout[0];
+		transDoorLayout[1] = doorLayout[1];
+		transDoorLayout[3] = doorLayout[3];
+	} else if(a === -1 && b === 0 && c === 0 && d === 1){
+		//reflection in y-axis
+		console.log('y-axis:');
+		transDoorLayout[1] = doorLayout[3];
+		transDoorLayout[3] = doorLayout[1];
+		transDoorLayout[0] = doorLayout[0];
+		transDoorLayout[2] = doorLayout[2];
+	} else if(a === 0 && b === -1 && c === -1 && d === 0){
+		//reflection in y = x
+		console.log('y = x:');
+		transDoorLayout[0] = doorLayout[1];
+		transDoorLayout[1] = doorLayout[0];
+		transDoorLayout[2] = doorLayout[3];
+		transDoorLayout[3] = doorLayout[2];
+	} else if(a === 0 && b === 1 && c === 1 && d === 0){
+		//reflection in y = -x
+		console.log('y = -x:');
+		transDoorLayout[0] = doorLayout[3];
+		transDoorLayout[3] = doorLayout[0];
+		transDoorLayout[2] = doorLayout[1];
+		transDoorLayout[1] = doorLayout[2];
+	} else if(a === 0 && b === 1 && c === -1 && d === 0){
+		//rotation clockwise 90 degrees
+		console.log('CW 90:');
+		transDoorLayout[0] = doorLayout[3];
+		transDoorLayout[1] = doorLayout[0];
+		transDoorLayout[2] = doorLayout[1];
+		transDoorLayout[3] = doorLayout[2];
+	} else if(a === 0 && b === -1 && c === 1 && d === 0){
+		//rotation anti-clockwise 90 degrees
+		console.log('CCW 90:');
+		transDoorLayout[0] = doorLayout[1];
+		transDoorLayout[1] = doorLayout[2];
+		transDoorLayout[2] = doorLayout[3];
+		transDoorLayout[3] = doorLayout[0];
+	} else if(a === -1 && b === 0 && c === 0 && d === -1){
+		//rotation 180 degrees
+		console.log('180:');
+		transDoorLayout[0] = doorLayout[2];
+		transDoorLayout[1] = doorLayout[3];
+		transDoorLayout[2] = doorLayout[0];
+		transDoorLayout[3] = doorLayout[1];
+	} else {
+		got = false;
 	}
 	
-	transDoorMatrix = moveIntoFirstQuadrant(transDoorMatrix);
+	if(got){
+		console.log(a, b, c, d);
+		console.log(-a, -b, -c, -d);
+		console.log(transDoorLayout[0],transDoorLayout[1],transDoorLayout[2],transDoorLayout[3]);
 	
-	//loop through the doors again
-	for(var i = 0; i < 4; i++){
-		//console.log(i + " " + getDoorLayoutPosition(transDoorMatrix[i]));
-		transDoorLayout[getDoorLayoutPosition(transDoorMatrix[i])] = doorLayout[i];
+	
+		//try and work out how to make it dynamic
+		var transDoorLayoutCompare = new Array(4);
+		var transDoorLayoutCompare2 = new Array(4);
+		var j, k;
+		var doorMatrix = [[0.5, 1],[1, 0.5],[0.5, 0],[0, 0.5]];
+		for(var i = 0; i < 4; i++){
+			transDoorLayoutCompare[i] = transformPointByMatrix(doorMatrix[i][0], doorMatrix[i][1], -a, -b, -c, -d);
+			//console.log(transDoorLayoutCompare[i]);
+			//console.log(doorMatrix[i][0], doorMatrix[i][1]);
+		}
+		moveIntoFirstQuadrant(transDoorLayoutCompare);
+		
+		for(var i = 0; i < 4; i++){
+			//console.log(transDoorLayoutCompare[i]);
+		}
+		var n;
+		for(var i = 0; i < 4; i++){
+			n = -1;
+			do {
+				n++;
+				//console.log('td', transDoorLayoutCompare[i], doorMatrix[n]);
+			} while(!checkArrayContentsAreTheSame(transDoorLayoutCompare[i], doorMatrix[n]) && n < 3);
+			transDoorLayoutCompare2[n] = doorLayout[i];
+			//console.log(n);
+		}
+		console.log(transDoorLayoutCompare2[0],transDoorLayoutCompare2[1],
+			transDoorLayoutCompare2[2],transDoorLayoutCompare2[3]);
+		
+		if(checkArrayContentsAreTheSame(transDoorLayout, transDoorLayoutCompare2)){
+			console.log('pass');
+		} else {
+			console.log('fail');
+		}
+	
 	}
-	
-	//console.log("mat " + transDoorMatrix + " " + doorMatrix);
-
-	//console.log(doorLayout + " " + transDoorLayout);
-	
-	return transDoorLayout;
-}
+}*/
 
 /*Detects which quadrant the unit square is in and move it to the first quadrant (makes them positive) */
 function moveIntoFirstQuadrant(matrix){
@@ -351,26 +415,4 @@ function translateIntoFirstQuadrant(matrix, moveX, moveY){
 		}
 	}
 	return matrix;
-}
-
-/*Returns a number from 0 to 3 inclusive which is the index of doorLayout that a cordinate in doorMatrix represents */
-function getDoorLayoutPosition(coords){
-	var doorMatrix = getDoorMatrix();
-	//loop through the possibilities and see if they're the same
-	for(var i = 0; i < 4; i++){
-		if(checkArrayContentsAreTheSame(coords, doorMatrix[i])){
-			return i;
-		}
-	}
-	//if not found, return an error
-	return -1;
-}
-
-/*Returns a 4x2 matrix with a series of coordinates (the corners of a unit square) which represent the position of each door
-	North = (1, 1)
-	East = (1, 0)
-	South = (0, 0)
-	West = (0, 1) */
-function getDoorMatrix(){
-	return [[1, 1],[1, 0],[0, 0],[0, 1]];
 }

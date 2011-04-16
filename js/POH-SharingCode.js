@@ -21,7 +21,7 @@ function calculateSharingCode(houseArrayToUse){
 					}
 					code += calculateCharsFromRoomLocation(i, j, k);
 					code += calculateCharFromDoorLayout(i, j, k, houseArrayToUse);
-					code += houseArrayToUse[i][j][k].type;
+					code += houseArrayToUse[i][j][k].typeID;
 				}
 			}
 		}
@@ -87,6 +87,7 @@ function loadHouseFromSharingCode(code){
 
 /*Loads the default house */
 function loadDefaultHouse(){
+	switchToOverviewMode(); //needs to be done before loading the new house otherwise there are problems with the selected room and it will cause errors
 	var code = "UDOB,UEBC"; //default
 	$.cookie('pohPlannerSharingCode', code);
 	loadHouseFromSharingCode(code);
