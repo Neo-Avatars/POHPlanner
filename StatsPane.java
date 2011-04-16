@@ -10,9 +10,9 @@ public class StatsPane {
 	private int skillID;
 	private JTextField levelBox = new JTextField(3);
 
-	public StatsPane(String skillName, int skillID){
+	public StatsPane(String skillName, int skillID, Utilities util){
 		this.skillLabel.setText(skillName+": ");
-		this.skillLabel.setIcon(new ImageIcon("skillIcons/" + skillName + ".gif"));
+		this.skillLabel.setIcon(util.loadImage(("skillIcons/" + skillName + ".gif")));
 		this.skillLabel.setToolTipText("Set your " + skillName + " level");
 		this.skillID = skillID;
 		this.levelBox.setDocument(new TextFieldLimiter(2));

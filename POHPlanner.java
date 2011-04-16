@@ -28,11 +28,12 @@ import pohplanner.TextFieldLimiter;
 
 //NOTE: DO NOT put apostrophes in names of anything or it won't work!
 
+//TODO add more rules and confirmations when building eg. stairs
+//TODO similar thing with the dungeon as with the upper floors, that you can't build unless you have a room connecting to it or there is a Dungeon entrance/Throne room above.
 //TODO fix it when you're loading from a sharing code and click 'No' when the 'Too high a level' message appears since currently it leaves the space blank
-//TODO work out how to support multiple polygons for a hotspot
 //TODO add some sort of ToolTip to Polygons
 //TODO add support for GE prices
-//TODO add more rules and confirmations when building eg. stairs / costume room
+//TODO bring flatpack prices into the price equation
 //TODO optimise the sharing code to contain less 0s
 //TODO get a CostumeRoom screenshot - Josh said he may do it
 //TODO create a window showing all the materials that you need
@@ -43,7 +44,16 @@ import pohplanner.TextFieldLimiter;
 //TODO add a way to rotate the house
 //TODO add an 'Edit Stats' option to the dimension warning message
 //TODO fix vertical spacing for Parlour viewInfo - fixes when you have lots of Hotspots
+//TODO work out what's wrong when room images stop showing
 
+/*
+Done:
+The skill icons in the View Stats pane now show
+Fixed the dimension limit problem when manually setting your stats
+You can only build one Costume Room
+Fixed the floor-related problem explained in http://runescape.salmoneus.net/forums/index.php?s=&showtopic=291756&view=findpost&p=3353045
+Fixed http://runescape.salmoneus.net/forums/index.php?s=&showtopic=291756&view=findpost&p=3353464
+ * */
 
 /**
  * The main class file for the POH Planner.
@@ -53,8 +63,9 @@ import pohplanner.TextFieldLimiter;
 public class POHPlanner extends JApplet implements ActionListener, MouseListener, ItemListener {
 
 	private static final long serialVersionUID = -4986474296742496209L;
+	private static Utilities util = new Utilities();
 	
-	private JLabel powerImageLabel = new JLabel(new ImageIcon(this.getClass().getResource("poweredby.gif")));
+	private JLabel powerImageLabel = new JLabel(util.loadImage("poweredby.gif"));
 	
 	//loading things
 	private JPanel loadingPanel = new JPanel();
@@ -82,23 +93,25 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	private JTextField menuHouseCodeTextbox = new JTextField(10);
 	private JLabel menuHouseCodeLabel = new JLabel();
 	private JButton menuHouseCodeButton = new JButton();
-	private JMenu mainMenu = new JMenu( "Menu" );
-	private JMenuItem menuItem = new JMenu( "Item" );
+	//private JMenu mainMenu = new JMenu( "Menu" );
+	//private JMenuItem menuItem = new JMenu( "Item" );
 	private JMenu transformMenu = new JMenu("Transform");
 	private JMenuItem moveHouseNorthMenuItem = new JMenuItem("Move House North");
 	private JMenuItem moveHouseSouthMenuItem = new JMenuItem("Move House South");
 	private JMenuItem moveHouseEastMenuItem = new JMenuItem("Move House East");
 	private JMenuItem moveHouseWestMenuItem = new JMenuItem("Move House West");
+	private JMenuItem flipHouseHorizontallyMenuItem = new JMenuItem("Flip House Horizontally");
+	private JMenuItem flipHouseVerticallyMenuItem = new JMenuItem("Flip House Vertically");
 	private JMenuItem rotateHouseClockwiseMenuItem = new JMenuItem("Rotate House Clockwise");
 	private JMenuItem rotateHouseAntiClockwiseMenuItem = new JMenuItem("Rotate House Anti-Clockwise");
 	
 	//colours
-	private Color bgblue = new Color(83, 115, 191);
+	//private Color bgblue = new Color(83, 115, 191);
 	private Color bgcream = new Color(217, 198, 163);
-	private Color bgtransparent = new Color(0, 0, 0, 0);
+	//private Color bgtransparent = new Color(0, 0, 0, 0);
 	private Color txtred = new Color(127, 2, 1);
 	private Color txtblue = new Color(1, 0, 254);
-	private Color polycol = new Color(89,63,255,128);
+	//private Color polycol = new Color(89,63,255,128);
 	
 	//Fonts
 	private Font titleFont = new Font("Helvetica", Font.BOLD, 14);
@@ -163,27 +176,27 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	private JButton buildButtonDungeonStairs = new JButton();
 	private JButton buildButtonTreasureRoom = new JButton();
 
-	private JLabel buildIconGarden = new JLabel("Cost: 1000gp  Requires Level: 1", new ImageIcon("buildIcons/garden.gif"), JLabel.CENTER);
-	private JLabel buildIconParlour = new JLabel("Cost: 1000gp  Requires Level: 1", new ImageIcon("buildIcons/parlour.gif"), JLabel.CENTER);
-	private JLabel buildIconKitchen = new JLabel("Cost: 5000gp  Requires Level: 5", new ImageIcon("buildIcons/kitchen.gif"), JLabel.CENTER);
-	private JLabel buildIconDiningRoom = new JLabel("Cost: 5000gp  Requires Level: 10", new ImageIcon("buildIcons/diningroom.gif"), JLabel.CENTER);
-	private JLabel buildIconWorkshop = new JLabel("Cost: 10000gp  Requires Level: 15", new ImageIcon("buildIcons/workshop.gif"), JLabel.CENTER);
-	private JLabel buildIconBedroom = new JLabel("Cost: 10000gp  Requires Level: 20", new ImageIcon("buildIcons/bedroom.gif"), JLabel.CENTER);
-	private JLabel buildIconSkillHall = new JLabel("Cost: 15000gp  Requires Level: 25", new ImageIcon("buildIcons/skillhall.gif"), JLabel.CENTER);
-	private JLabel buildIconGamesRoom = new JLabel("Cost: 25000gp  Requires Level: 30", new ImageIcon("buildIcons/gamesroom.gif"), JLabel.CENTER);
-	private JLabel buildIconCombatRoom = new JLabel("Cost: 25000gp  Requires Level: 32", new ImageIcon("buildIcons/combatroom.gif"), JLabel.CENTER);
-	private JLabel buildIconQuestHall = new JLabel("Cost: 25000gp  Requires Level: 35", new ImageIcon("buildIcons/questhall.gif"), JLabel.CENTER);
-	private JLabel buildIconStudy = new JLabel("Cost: 50000gp  Requires Level: 40", new ImageIcon("buildIcons/study.gif"), JLabel.CENTER);
-	private JLabel buildIconCostumeRoom = new JLabel("Cost: 50000gp  Requires Level: 42", new ImageIcon("buildIcons/costumeroom.gif"), JLabel.CENTER);
-	private JLabel buildIconChapel = new JLabel("Cost: 50000gp  Requires Level: 45", new ImageIcon("buildIcons/chapel.gif"), JLabel.CENTER);
-	private JLabel buildIconPortalChamber = new JLabel("Cost: 100000gp  Requires Level: 50", new ImageIcon("buildIcons/portalchamber.gif"), JLabel.CENTER);
-	private JLabel buildIconFormalGarden = new JLabel("Cost: 75000gp  Requires Level: 55", new ImageIcon("buildIcons/formalgarden.gif"), JLabel.CENTER);
-	private JLabel buildIconThroneRoom = new JLabel("Cost: 150000gp  Requires Level: 60", new ImageIcon("buildIcons/throneroom.gif"), JLabel.CENTER);
-	private JLabel buildIconOubliette = new JLabel("Cost: 150000gp  Requires Level: 65", new ImageIcon("buildIcons/oubliette.gif"), JLabel.CENTER);
-	private JLabel buildIconDungeonCorridor = new JLabel("Cost: 7500gp  Requires Level: 70", new ImageIcon("buildIcons/dungeon.gif"), JLabel.CENTER);
-	private JLabel buildIconDungeonJunction = new JLabel("Cost: 7500gp  Requires Level: 70", new ImageIcon("buildIcons/dungeon.gif"), JLabel.CENTER);
-	private JLabel buildIconDungeonStairs = new JLabel("Cost: 7500gp  Requires Level: 70", new ImageIcon("buildIcons/dungeon.gif"), JLabel.CENTER);
-	private JLabel buildIconTreasureRoom = new JLabel("Cost: 250000gp  Requires Level: 75", new ImageIcon("buildIcons/treasureroom.gif"), JLabel.CENTER);
+	private JLabel buildIconGarden = new JLabel("Cost: 1000gp  Requires Level: 1", util.loadImage( "buildIcons/garden.gif" ), JLabel.CENTER);
+	private JLabel buildIconParlour = new JLabel("Cost: 1000gp  Requires Level: 1", util.loadImage("buildIcons/parlour.gif"), JLabel.CENTER);
+	private JLabel buildIconKitchen = new JLabel("Cost: 5000gp  Requires Level: 5", util.loadImage("buildIcons/kitchen.gif"), JLabel.CENTER);
+	private JLabel buildIconDiningRoom = new JLabel("Cost: 5000gp  Requires Level: 10", util.loadImage("buildIcons/diningroom.gif"), JLabel.CENTER);
+	private JLabel buildIconWorkshop = new JLabel("Cost: 10000gp  Requires Level: 15", util.loadImage("buildIcons/workshop.gif"), JLabel.CENTER);
+	private JLabel buildIconBedroom = new JLabel("Cost: 10000gp  Requires Level: 20", util.loadImage("buildIcons/bedroom.gif"), JLabel.CENTER);
+	private JLabel buildIconSkillHall = new JLabel("Cost: 15000gp  Requires Level: 25", util.loadImage("buildIcons/skillhall.gif"), JLabel.CENTER);
+	private JLabel buildIconGamesRoom = new JLabel("Cost: 25000gp  Requires Level: 30", util.loadImage("buildIcons/gamesroom.gif"), JLabel.CENTER);
+	private JLabel buildIconCombatRoom = new JLabel("Cost: 25000gp  Requires Level: 32", util.loadImage("buildIcons/combatroom.gif"), JLabel.CENTER);
+	private JLabel buildIconQuestHall = new JLabel("Cost: 25000gp  Requires Level: 35", util.loadImage("buildIcons/questhall.gif"), JLabel.CENTER);
+	private JLabel buildIconStudy = new JLabel("Cost: 50000gp  Requires Level: 40", util.loadImage("buildIcons/study.gif"), JLabel.CENTER);
+	private JLabel buildIconCostumeRoom = new JLabel("Cost: 50000gp  Requires Level: 42", util.loadImage("buildIcons/costumeroom.gif"), JLabel.CENTER);
+	private JLabel buildIconChapel = new JLabel("Cost: 50000gp  Requires Level: 45", util.loadImage("buildIcons/chapel.gif"), JLabel.CENTER);
+	private JLabel buildIconPortalChamber = new JLabel("Cost: 100000gp  Requires Level: 50", util.loadImage("buildIcons/portalchamber.gif"), JLabel.CENTER);
+	private JLabel buildIconFormalGarden = new JLabel("Cost: 75000gp  Requires Level: 55", util.loadImage("buildIcons/formalgarden.gif"), JLabel.CENTER);
+	private JLabel buildIconThroneRoom = new JLabel("Cost: 150000gp  Requires Level: 60", util.loadImage("buildIcons/throneroom.gif"), JLabel.CENTER);
+	private JLabel buildIconOubliette = new JLabel("Cost: 150000gp  Requires Level: 65", util.loadImage("buildIcons/oubliette.gif"), JLabel.CENTER);
+	private JLabel buildIconDungeonCorridor = new JLabel("Cost: 7500gp  Requires Level: 70", util.loadImage("buildIcons/dungeon.gif"), JLabel.CENTER);
+	private JLabel buildIconDungeonJunction = new JLabel("Cost: 7500gp  Requires Level: 70", util.loadImage("buildIcons/dungeon.gif"), JLabel.CENTER);
+	private JLabel buildIconDungeonStairs = new JLabel("Cost: 7500gp  Requires Level: 70", util.loadImage("buildIcons/dungeon.gif"), JLabel.CENTER);
+	private JLabel buildIconTreasureRoom = new JLabel("Cost: 250000gp  Requires Level: 75", util.loadImage("buildIcons/treasureroom.gif"), JLabel.CENTER);
 
 	private JFrame roomBuildingFrame = new JFrame();
 	private JPanel roomBuildingScrollPanel = new JPanel();
@@ -239,7 +252,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	 */
 	private int[] rightOverviewLabelNumbers = new int[4];
 	private String furniBuildingFrameHotspotType = "";
-	private boolean clickedOnHotspot = false;
+	//private boolean clickedOnHotspot = false;
 	private int selectedHotspotID = -1;
 	private int currentRoomFurniNumber = 0;
 	private int overviewViewingLevel = 1;
@@ -265,6 +278,9 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	private boolean viewingRoomBuildFrame = false;
 	private boolean rotatingRoom = false;
 	private boolean loadingHouse = false;
+	private boolean initialising = false;
+	private boolean costumeRoomBuilt = false;
+	private boolean stairsBuilt = false;
 	
 	//room limits
 	/**
@@ -314,9 +330,10 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	//used for testing and should probably exist in a
 	//different form by the finished version
 	private String username = ""; //set to "" - name is for easier testing Lostsamurai7
-	private boolean[] fourTrues = new boolean[]{true, true, true, true}; //was used
+	//private boolean[] fourTrues = new boolean[]{true, true, true, true}; //was used
 	
 	public void init() {
+		initialising = true;
 	    initMenuBar();
 		initLoadingPanel();
 		loadingLabel.setText("Loading . . . 7%");
@@ -334,7 +351,11 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		loadingLabel.setText("Loading . . . 37%");
 		initFurniBuildingFrame();
 		loadingLabel.setText("Loading . . . 42%");
+		//causes problems when rotating the Parlour >.<
+		//menuHouseCodeTextbox.setText("001,13405fttt00000000000000,14404tttt01000000000000,");
+		//loadHouseFromSharingCode();
 		initRoomArray(); //should eventually be replaced by loadHouseFromSharingCode()
+		//setEmptyRoomArray();
 		loadingLabel.setText("Loading . . . 55%");
 		initRoomInfoPanel();
 		loadingLabel.setText("Loading . . . 69%");
@@ -350,6 +371,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		corePanel.setVisible(true);
 		menuHouseCodeButton.setEnabled( true );
 		calculateSharingCode();
+		initialising = false;
 
 	}
 
@@ -365,6 +387,8 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		transformMenu.add(moveHouseEastMenuItem);
 		transformMenu.add(moveHouseSouthMenuItem);
 		transformMenu.add(moveHouseWestMenuItem);
+		//transformMenu.add(flipHouseHorizontallyMenuItem);
+		//transformMenu.add(flipHouseVerticallyMenuItem);
 		//transformMenu.add(rotateHouseClockwiseMenuItem); //not working
 		//transformMenu.add(rotateHouseAntiClockwiseMenuItem);
 		
@@ -372,8 +396,24 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		moveHouseSouthMenuItem.addActionListener(this);
 		moveHouseEastMenuItem.addActionListener(this);
 		moveHouseWestMenuItem.addActionListener(this);
+		flipHouseHorizontallyMenuItem.addActionListener(this);
+		flipHouseVerticallyMenuItem.addActionListener(this);
 		rotateHouseClockwiseMenuItem.addActionListener(this);
 		rotateHouseAntiClockwiseMenuItem.addActionListener(this);
+		
+		//add a way to use keys to do things
+		moveHouseNorthMenuItem.setAccelerator(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_UP, ActionEvent.ALT_MASK));
+		moveHouseSouthMenuItem.setAccelerator(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_DOWN, ActionEvent.ALT_MASK));
+		moveHouseEastMenuItem.setAccelerator(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_RIGHT, ActionEvent.ALT_MASK));
+		moveHouseWestMenuItem.setAccelerator(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_LEFT, ActionEvent.ALT_MASK));
+		moveHouseNorthMenuItem.setMnemonic(KeyEvent.VK_N);
+		moveHouseSouthMenuItem.setMnemonic(KeyEvent.VK_S);
+		moveHouseEastMenuItem.setMnemonic(KeyEvent.VK_E);
+		moveHouseWestMenuItem.setMnemonic(KeyEvent.VK_W);
 		
 	    //add space between menu and House Code
 	    menuBar.add(Box.createRigidArea(new Dimension(50, 0)));
@@ -437,7 +477,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		viewStatsFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		
 		viewStatsFrame.setBounds(200, 60, 350, 488);
-		viewStatsFrame.setIconImage(new ImageIcon("statsicon.gif").getImage());
+		viewStatsFrame.setIconImage(util.loadImage("statsicon.gif").getImage());
 		viewStatsFrame.setTitle("View and Edit your Stats and completed Quests");
 
 		viewStatsFrame.add(viewStatsScrollPane);
@@ -456,30 +496,30 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		viewStatsSaveButton.setToolTipText("Save your stats");
 		
 		//create the various skills
-		statsPanelHash.put(0, new StatsPane("Attack", 1));
-		statsPanelHash.put(1, new StatsPane("Defence", 2));
-		statsPanelHash.put(2, new StatsPane("Strength", 3));
-		statsPanelHash.put(3, new StatsPane("Hitpoints", 4));
-		statsPanelHash.put(4, new StatsPane("Ranged", 5));
-		statsPanelHash.put(5, new StatsPane("Prayer", 6));
-		statsPanelHash.put(6, new StatsPane("Magic", 7));
-		statsPanelHash.put(7, new StatsPane("Cooking", 8));
-		statsPanelHash.put(8, new StatsPane("Woodcutting", 9));
-		statsPanelHash.put(9, new StatsPane("Fletching", 10));
-		statsPanelHash.put(10, new StatsPane("Fishing", 11));
-		statsPanelHash.put(11, new StatsPane("Firemaking", 12));
-		statsPanelHash.put(12, new StatsPane("Crafting", 13));
-		statsPanelHash.put(13, new StatsPane("Smithing", 14));
-		statsPanelHash.put(14, new StatsPane("Mining", 15));
-		statsPanelHash.put(15, new StatsPane("Herblore", 16));
-		statsPanelHash.put(16, new StatsPane("Agility", 17));
-		statsPanelHash.put(17, new StatsPane("Thieving", 18));
-		statsPanelHash.put(18, new StatsPane("Slayer", 19));
-		statsPanelHash.put(19, new StatsPane("Farming", 20));
-		statsPanelHash.put(20, new StatsPane("Runecrafting", 21));
-		statsPanelHash.put(21, new StatsPane("Hunter", 22));
-		statsPanelHash.put(22, new StatsPane("Construction", 23));
-		statsPanelHash.put(23, new StatsPane("Summoning", 24));
+		statsPanelHash.put(0, new StatsPane("Attack", 1, util));
+		statsPanelHash.put(1, new StatsPane("Defence", 2, util));
+		statsPanelHash.put(2, new StatsPane("Strength", 3, util));
+		statsPanelHash.put(3, new StatsPane("Hitpoints", 4, util));
+		statsPanelHash.put(4, new StatsPane("Ranged", 5, util));
+		statsPanelHash.put(5, new StatsPane("Prayer", 6, util));
+		statsPanelHash.put(6, new StatsPane("Magic", 7, util));
+		statsPanelHash.put(7, new StatsPane("Cooking", 8, util));
+		statsPanelHash.put(8, new StatsPane("Woodcutting", 9, util));
+		statsPanelHash.put(9, new StatsPane("Fletching", 10, util));
+		statsPanelHash.put(10, new StatsPane("Fishing", 11, util));
+		statsPanelHash.put(11, new StatsPane("Firemaking", 12, util));
+		statsPanelHash.put(12, new StatsPane("Crafting", 13, util));
+		statsPanelHash.put(13, new StatsPane("Smithing", 14, util));
+		statsPanelHash.put(14, new StatsPane("Mining", 15, util));
+		statsPanelHash.put(15, new StatsPane("Herblore", 16, util));
+		statsPanelHash.put(16, new StatsPane("Agility", 17, util));
+		statsPanelHash.put(17, new StatsPane("Thieving", 18, util));
+		statsPanelHash.put(18, new StatsPane("Slayer", 19, util));
+		statsPanelHash.put(19, new StatsPane("Farming", 20, util));
+		statsPanelHash.put(20, new StatsPane("Runecrafting", 21, util));
+		statsPanelHash.put(21, new StatsPane("Hunter", 22, util));
+		statsPanelHash.put(22, new StatsPane("Construction", 23, util));
+		statsPanelHash.put(23, new StatsPane("Summoning", 24, util));
 		
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -598,6 +638,9 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
         	catch(Exception e){
         		//System.out.println("err: " + e);
         	}
+        	
+        	//update dimension limit
+        	roomDimensionLimit = getRoomDimensionLimit(Integer.parseInt(statsPanelHash.get(22).getLevelBox().getText()));
         	
         	//System.out.println("update: " + i);
         }
@@ -742,7 +785,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		roomBuildingFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		
 		roomBuildingFrame.setBounds(50, 80, 600, 400);
-		roomBuildingFrame.setIconImage(new ImageIcon("hammer.gif").getImage());
+		roomBuildingFrame.setIconImage(util.loadImage("hammer.gif").getImage());
 		roomBuildingFrame.setTitle("Build a new Room");
 
 		roomBuildingFrame.add(roomBuildingScrollPane);
@@ -891,7 +934,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		furniBuildingFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		
 		//furniBuildingFrame.setBounds(50, 80, 600, 400);
-		furniBuildingFrame.setIconImage(new ImageIcon("hammer.gif").getImage());
+		furniBuildingFrame.setIconImage(util.loadImage("hammer.gif").getImage());
 		furniBuildingFrame.setTitle("Build Furniture");
 		
 		furniRemoveFromHotspotLabel.setForeground(txtred);
@@ -977,7 +1020,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 			furniXP = 0;
 			
 			JLabel furniTypeLabel = new JLabel(hotspot.getFurniTypes()[i].getFurniType());
-			JLabel furniImageLabel = new JLabel(new ImageIcon("furniIcons/"+hotspot.getFurniTypes()[i].getFurniURL()+".gif" ));
+			JLabel furniImageLabel = new JLabel(util.loadImage("furniIcons/"+hotspot.getFurniTypes()[i].getFurniURL()+".gif" ));
 			JLabel materialsLabel = new JLabel("Materials:");
 			JLabel furniLevelReqLabel = new JLabel("Level " + hotspot.getFurniTypes()[i].getLevel());
 			
@@ -1017,7 +1060,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 				if(hotspot.getFurniTypes()[i].getLevel() > Integer.parseInt(statsPanelHash.get(22).getLevelBox().getText())
 						&& hotspot.getFurniTypes()[i].getLevel() > 1
 							&& !ignoreLevelWarnings){
-					furniBuildHash.get( i ).getBuildPanel().add(new JLabel(new ImageIcon("furniIcons/unavailable.gif")), c);
+					furniBuildHash.get( i ).getBuildPanel().add(new JLabel(util.loadImage("furniIcons/unavailable.gif")), c);
 					furniBuildHash.get( i ).getBuildPanel().setToolTipText("The level requirement to build a " +
 							hotspot.getFurniTypes()[i].getFurniType() + " is too high for you to build.");
 				}
@@ -1115,15 +1158,15 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 					hashKey = "overviewRoom" + i + j + k;
 					
 					if(i == 1){
-						roomHash.put( hashKey , new Room("EmptyFloor1", i));
+						roomHash.put( hashKey , new Room("EmptyFloor1", i, util));
 						roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 						roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText("Build a Room");
 					} else if(i == 0) {
-						roomHash.put( hashKey , new Room("EmptyDungeon", 0));
+						roomHash.put( hashKey , new Room("EmptyDungeon", 0, util));
 						roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 						roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText("Build a Room");
 					} else if(i == 2) {
-						roomHash.put( hashKey , new Room("EmptyUpstairs", 0));
+						roomHash.put( hashKey , new Room("EmptyUpstairs", 0, util));
 						roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 						roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText("You need to build a Room downstairs to build one here");
 					}
@@ -1377,20 +1420,14 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
      * @param roomKey The key used to access data in roomHash
      */
 	private void createAndShowRoom(String roomKey) {
-	    
+	    Room room = roomHash.get(roomKey);
 		//roomPanel.removeAll();
 		refreshGrid();
 		
 		lastViewedRoom = roomKey;
 		viewingRoom = roomKey;
 		
-	    //roomPanel.add(roomHash.get(roomKey).getRoomImageLabel());
-		//RoomBackground background = new RoomBackground("roomPics/" + roomHash.get(roomKey).getRoomImageURL() + ".png");
-		//roomPanel.add(background);
-
-		/* MODIFIED */
-		
-		roomPanel = new RoomPanel( roomHash.get(roomKey).getRoomImage(), roomHash.get( roomKey ) );
+		roomPanel = new RoomPanel( util.loadImage( room.getRoomImage() ).getImage(), room );
 		roomPanel.addMouseListener( this );
 		leftPanel.add( roomPanel );
 		
@@ -1643,6 +1680,18 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	 */
 	public void buildRoom(String roomKey, String roomType, int level){
 		boolean buildable = true;
+		
+		//check that there isn't a Costume Room already built
+		if(roomType.equals("Costume Room")){
+			if(costumeRoomBuilt == true){
+				buildable = false;
+				JOptionPane.showMessageDialog( null,
+						"You can only build one Costume Room, no matter how many clothes you have or how awesome you are.",
+						"Costume Room", 
+			            JOptionPane.ERROR_MESSAGE );
+			}
+		}
+
 		//check that you aren't trying to build a dungeon room out of the dungeon
 		if(level != 0){
 			if(roomType.equals("Dungeon Corridor")
@@ -1675,13 +1724,14 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		
 		}
 		
-		if(buildable){
+		if(!loadingHouse){
 			//check that you haven't already built as many rooms as you're allowed
 			if(rightOverviewLabelNumbers[0]
 			     >= getRoomNumberLimit(Integer.parseInt(statsPanelHash.get(22).getLevelBox().getText()))
 			     	&& roomType != "EmptyFloor1" && roomType != "EmptyUpstairs"
 			     		&& roomType != "AboveUpstairs" && roomType != "EmptyDungeon"
 			     			&& !loadAllRooms && !loadingHouse){
+				buildable = false;
 				//show an error dialogue
 				String conLvl = statsPanelHash.get(22).getLevelBox().getText().equals("-1") ? "1" : statsPanelHash.get(22).getLevelBox().getText();
 				JOptionPane.showMessageDialog( null,
@@ -1690,14 +1740,15 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 						" rooms that your level " + conLvl +
 						" Construction\nallows and cannot build any more without removing existing\nrooms or changing your specified Construction level.",
 						"Too many rooms", 
-	                    JOptionPane.ERROR_MESSAGE );
+		                JOptionPane.ERROR_MESSAGE );
 			}
 			
 			
 			//check house dimensions
-			if(!checkMostDistantRoom(roomKey)
+			else if(!checkMostDistantRoom(roomKey)
 					&& roomType != "EmptyFloor1" && roomType != "EmptyUpstairs"
 			     		&& roomType != "AboveUpstairs" && roomType != "EmptyDungeon"){
+				buildable = false;
 				String conLvl = statsPanelHash.get(22).getLevelBox().getText().equals("-1") ? "1" : statsPanelHash.get(22).getLevelBox().getText();
 				JOptionPane.showMessageDialog( null,
 					"With level " + conLvl
@@ -1706,17 +1757,26 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 					"House dimension too large", 
 		            JOptionPane.ERROR_MESSAGE );
 			}
+		}
+			
+		if(buildable){
 	
 			//check that you have the level to actually build it
-			else if(initialisingRoomAray
-					|| new Room(roomType, level).getRoomLevel() <= Integer.parseInt(statsPanelHash.get(22).getLevelBox().getText())
-						|| new Room(roomType, level).getRoomLevel() < 2
+			if(initialisingRoomAray
+					|| new Room(roomType, level, util).getRoomLevel() <= Integer.parseInt(statsPanelHash.get(22).getLevelBox().getText())
+						|| new Room(roomType, level, util).getRoomLevel() < 2
 							|| ignoreLevelWarnings){
 				//build the room
-				roomHash.put( roomKey , new Room(roomType, level));
+				roomHash.put( roomKey , new Room(roomType, level, util));
 				roomHash.get( roomKey ).getRoomOverviewLabel().addMouseListener(this);
 				roomHash.get( roomKey ).getRoomOverviewLabel().setToolTipText(roomHash.get( roomKey ).getRoomType());
 		
+				//increment the number of costume rooms
+				//if done with the Costume Room bit further up, problems occur if your level is too low
+				if(roomType.equals("Costume Room")){
+					costumeRoomBuilt = true;
+				}
+				
 				//indicate upstairs
 				//when building
 				if(level == 1 && roomHash.get(roomKey).getRoomType() != ""
@@ -1724,7 +1784,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 						&& roomHash.get(roomKey).getRoomType() != "Formal Garden"){
 					String newKey = "overviewRoom2" + roomKey.substring(13);
 					
-					roomHash.put( newKey , new Room("AboveUpstairs", 2));
+					roomHash.put( newKey , new Room("AboveUpstairs", 2, util));
 					roomHash.get( newKey ).getRoomOverviewLabel().addMouseListener(this);
 					roomHash.get( newKey ).getRoomOverviewLabel().setToolTipText("Build a Room");
 				}
@@ -1732,7 +1792,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 				if(level == 1 && roomHash.get(roomKey).getRoomType().equals("")){
 					String newKey = "overviewRoom2" + roomKey.substring(13);
 					
-					roomHash.put( newKey , new Room("EmptyUpstairs", 2));
+					roomHash.put( newKey , new Room("EmptyUpstairs", 2, util));
 					roomHash.get( newKey ).getRoomOverviewLabel().addMouseListener(this);
 					roomHash.get( newKey ).getRoomOverviewLabel().setToolTipText("You need to build a Room downstairs to build one here");
 				}
@@ -1763,7 +1823,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		        "No", "Edit my Stats"};
 				int ignoreLevelWarningsPane = JOptionPane.showOptionDialog(ignoreLevelWarningsConfirmFrame,
 				"Your Construction level is not high enough to build a " +
-				new Room(roomType, level).getRoomType() + ".\n" + //stops odd loading error messages
+				new Room(roomType, level, util).getRoomType() + ".\n" + //stops odd loading error messages
 				"Do you want to ignore level requirements and build it anyway?",
 				"Confirm Room Construction",
 				JOptionPane.YES_NO_CANCEL_OPTION,
@@ -1809,6 +1869,11 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		//if you want to delete, delete the room
 		if (demolitionPane == JOptionPane.YES_OPTION) {
 
+			//you can only have one costume room
+			if(roomHash.get(overviewSelectedRoom).getRoomType().equals("Costume Room")){
+				costumeRoomBuilt = false;
+			}
+			
 			updateRightHouseOverviewPanel(false, true, overviewSelectedRoom);
 			calculateSharingCode();
 			if(overviewViewingLevel == 1){
@@ -2134,53 +2199,55 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	 */
 	public void calculateSharingCode(){
 		
-		String hashKey = "";
-		String code = "";
-		
-		code += ("001,");
-		
-		//loops through rooms
-		for(int i = 0;i < 3;i++){
-			for(int j = 0;j < 9; j++){
-				for(int k = 0;k < 9; k++){
-					//set key
-					hashKey = "overviewRoom" + Integer.toString(i) + Integer.toString(j) + Integer.toString(k);
-
-					//if there's no room, we don't care
-					if(roomHash.get( hashKey ).getRoomType().equals("")
-							||roomHash.get( hashKey ).getRoomType().equals(" ")
-								||roomHash.get( hashKey ).getRoomType().equals("  ")){
-						continue;
-					}
-					else {
-						//add the ID of the room
-						code += (Integer.toString(i) + Integer.toString(j) + Integer.toString(k));
-						
-						//add the type of room
-						code += roomHash.get(hashKey).getRoomID();
-						
-						//add the door layout
-						for(int m = 0; m < 4; m++){
-							if(roomHash.get(hashKey).getDoorLayout()[m] == true){
-								code += "t";
-							} else {
-								code += "f";
+		//if(!initialising){ //stops it being run twice when initialising //reverted to old code, so commented out
+			String hashKey = "";
+			String code = "";
+			
+			code += ("001,");
+			
+			//loops through rooms
+			for(int i = 0;i < 3;i++){
+				for(int j = 0;j < 9; j++){
+					for(int k = 0;k < 9; k++){
+						//set key
+						hashKey = "overviewRoom" + Integer.toString(i) + Integer.toString(j) + Integer.toString(k);
+	
+						//if there's no room, we don't care
+						if(roomHash.get( hashKey ).getRoomType().equals("")
+								||roomHash.get( hashKey ).getRoomType().equals(" ")
+									||roomHash.get( hashKey ).getRoomType().equals("  ")){
+							continue;
+						}
+						else {
+							//add the ID of the room
+							code += (Integer.toString(i) + Integer.toString(j) + Integer.toString(k));
+							
+							//add the type of room
+							code += roomHash.get(hashKey).getRoomID();
+							
+							//add the door layout
+							for(int m = 0; m < 4; m++){
+								if(roomHash.get(hashKey).getDoorLayout()[m] == true){
+									code += "t";
+								} else {
+									code += "f";
+								}
 							}
+							
+							//loop through hotspots in the room and add the active furniture
+							for(int l = 0; l < roomHash.get( hashKey ).getHotspots().length; l++){
+								code += roomHash.get(hashKey).getHotspots()[l].getBuiltFurniture().getFurniID();
+							}
+							
+							//add a separator to indicate the start of the next room
+							code += ",";
 						}
-						
-						//loop through hotspots in the room and add the active furniture
-						for(int l = 0; l < roomHash.get( hashKey ).getHotspots().length; l++){
-							code += roomHash.get(hashKey).getHotspots()[l].getBuiltFurniture().getFurniID();
-						}
-						
-						//add a separator to indicate the start of the next room
-						code += ",";
 					}
 				}
 			}
-		}
-		
-		menuHouseCodeTextbox.setText(code);
+			
+			menuHouseCodeTextbox.setText(code);
+		//}
 	}
 	/**
 	 * Loads a house from the sharing code
@@ -2232,7 +2299,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 			else if (ignoreLevelWarningsPane == JOptionPane.CANCEL_OPTION) {
 				//just load as many rooms as the limit allows
 				roomsToLoad = 1+getRoomNumberLimit(Integer.parseInt(statsPanelHash.get(22).getLevelBox().getText()));
-				System.out.println("toload: " + roomsToLoad);
+				//System.out.println("toload: " + roomsToLoad);
 	        }
 
         }
@@ -2258,20 +2325,23 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	        	
 	        	//build a new room of specified type in specified spot
 	        	//roomLoadHash.put(hashKey, new Room(roomType, floor));
+	        	//System.out.println("key: " + hashKey + " type: " + roomType + " floor: " + floor);
 	        	buildRoom(hashKey, roomType, floor);
 	        	
 	        	//make sure the doors are correct
 	        	//add the door layout
 				for(int m = 0; m < 4; m++){
+					//System.out.println("door " + m + ": " + codePieces[i].substring(5+m,6+m));
 					if(codePieces[i].substring(5+m,6+m).equals("t")){
 						doors[m] = true;
 					} else {
 						doors[m] = false;
 					}
 				}
-				/*for(int q = 0; q < 4; q++){
-					System.out.println("loc: " + hashKey + " q: " + q + " d: " + doors[q]);
-				}*/
+				//for(int q = 0; q < 4; q++){
+				//	System.out.println("loc: " + hashKey + " q: " + q + " d: " + doors[q]);
+				//}
+				//System.out.println("doors: " + doors);
 				roomHash.get( hashKey ).setDoorLayout(doors);
 	        	roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 				roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText(roomHash.get( hashKey ).getRoomType());
@@ -2286,7 +2356,6 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	        		//build that type of furni
 	        		roomHash.get(hashKey).getHotspots()[j].setBuiltFurniture(new Furniture(furniType));
 	        	}
-	        	loadingHouse = false;
 	            
 	        }
 	        initRightHouseOverviewPanel();
@@ -2298,6 +2367,8 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	        	calculateSharingCode();
 	        }
         }
+        loadingHouse = false;
+        roomsToLoad = 0;
         loadAllRooms = false;
 
     }
@@ -2414,7 +2485,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 						//south
 						if(mostDistantRoom[2] == 10
 								|| j > mostDistantRoom[2]){
-							mostDistantRoom[2] = k;
+							mostDistantRoom[2] = j;
 						}
 						//west
 						if(mostDistantRoom[3] == 10
@@ -2425,7 +2496,6 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 				}
 			}
 		}
-
 	}
 	
 	/**
@@ -2483,15 +2553,15 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 					hashKey = "overviewRoom" + i + "8" + k;
 					
 					if(i == 1){
-						roomHash.put( hashKey , new Room("EmptyFloor1", i));
+						roomHash.put( hashKey , new Room("EmptyFloor1", i, util));
 						roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 						roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText("Build a Room");
 					} else if(i == 0) {
-						roomHash.put( hashKey , new Room("EmptyDungeon", 0));
+						roomHash.put( hashKey , new Room("EmptyDungeon", 0, util));
 						roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 						roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText("Build a Room");
 					} else if(i == 2) {
-						roomHash.put( hashKey , new Room("EmptyUpstairs", 0));
+						roomHash.put( hashKey , new Room("EmptyUpstairs", 0, util));
 						roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 						roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText("You need to build a Room downstairs to build one here");
 					}
@@ -2557,15 +2627,15 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 					hashKey = "overviewRoom" + i + "0" + k;
 					
 					if(i == 1){
-						roomHash.put( hashKey , new Room("EmptyFloor1", i));
+						roomHash.put( hashKey , new Room("EmptyFloor1", i, util));
 						roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 						roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText("Build a Room");
 					} else if(i == 0) {
-						roomHash.put( hashKey , new Room("EmptyDungeon", 0));
+						roomHash.put( hashKey , new Room("EmptyDungeon", 0, util));
 						roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 						roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText("Build a Room");
 					} else if(i == 2) {
-						roomHash.put( hashKey , new Room("EmptyUpstairs", 0));
+						roomHash.put( hashKey , new Room("EmptyUpstairs", 0, util));
 						roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 						roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText("You need to build a Room downstairs to build one here");
 					}
@@ -2631,15 +2701,15 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 					hashKey = "overviewRoom" + i + j + "0";
 					
 					if(i == 1){
-						roomHash.put( hashKey , new Room("EmptyFloor1", i));
+						roomHash.put( hashKey , new Room("EmptyFloor1", i, util));
 						roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 						roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText("Build a Room");
 					} else if(i == 0) {
-						roomHash.put( hashKey , new Room("EmptyDungeon", 0));
+						roomHash.put( hashKey , new Room("EmptyDungeon", 0, util));
 						roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 						roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText("Build a Room");
 					} else if(i == 2) {
-						roomHash.put( hashKey , new Room("EmptyUpstairs", 0));
+						roomHash.put( hashKey , new Room("EmptyUpstairs", 0, util));
 						roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 						roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText("You need to build a Room downstairs to build one here");
 					}
@@ -2705,15 +2775,15 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 					hashKey = "overviewRoom" + i + j + "8";
 						
 					if(i == 1){
-						roomHash.put( hashKey , new Room("EmptyFloor1", i));
+						roomHash.put( hashKey , new Room("EmptyFloor1", i, util));
 						roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 						roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText("Build a Room");
 					} else if(i == 0) {
-						roomHash.put( hashKey , new Room("EmptyDungeon", 0));
+						roomHash.put( hashKey , new Room("EmptyDungeon", 0, util));
 						roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 						roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText("Build a Room");
 					} else if(i == 2) {
-						roomHash.put( hashKey , new Room("EmptyUpstairs", 0));
+						roomHash.put( hashKey , new Room("EmptyUpstairs", 0, util));
 						roomHash.get( hashKey ).getRoomOverviewLabel().addMouseListener(this);
 						roomHash.get( hashKey ).getRoomOverviewLabel().setToolTipText("You need to build a Room downstairs to build one here");
 					}
@@ -2817,16 +2887,22 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
         	loadHouseFromSharingCode();
         } else if(e.getSource() == moveHouseNorthMenuItem){
 			moveHouseNorth();
+			determineMostDistantRoom();
 		} else if(e.getSource() == moveHouseSouthMenuItem){
 			moveHouseSouth();
+			determineMostDistantRoom();
 		} else if(e.getSource() == moveHouseEastMenuItem){
 			moveHouseEast();
+			determineMostDistantRoom();
 		} else if(e.getSource() == moveHouseWestMenuItem){
 			moveHouseWest();
+			determineMostDistantRoom();
 		} else if(e.getSource() == rotateHouseClockwiseMenuItem){
 			rotateHouseClockwise();
+			determineMostDistantRoom();
 		} else if(e.getSource() == rotateHouseAntiClockwiseMenuItem){
 			rotateHouseAntiClockwise();
+			determineMostDistantRoom();
 		}
 	    
 	}
@@ -2837,7 +2913,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		if (e.getSource() == rightViewGridButton) {
 			
 			if(viewingGrid)createAndShowRoom(lastViewedRoom);
-			else if(!viewingGrid) createAndShowGrid(1);
+			else if(!viewingGrid) createAndShowGrid(overviewViewingLevel);
 			
 		} else if (viewingGrid && e.getSource().toString().contains("57x57")){
 			splitArray = null;
@@ -2857,6 +2933,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 
 			String roomType = calculatePressedBuildButtonBasedOnName(e.getSource().toString());
 
+			//System.out.println("building: " + roomType);
 			//build the selected room
 			buildRoom(overviewSelectedRoom, roomType, overviewViewingLevel);
 

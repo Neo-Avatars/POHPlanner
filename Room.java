@@ -2,12 +2,9 @@ package pohplanner;
 
 import java.awt.Color;
 import java.awt.Dimension;
-
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 public class Room {
-
 	private String type;
 	private String labelText;
 	private int level;
@@ -21,13 +18,13 @@ public class Room {
 	private String roomImageURL;
 	private String roomImage;
 	private JLabel roomLabel;
-	//private JLabel roomImageLabel;
 	private String ID;
+	private Utilities util;
 	
-	public Room( String type, int houseFloor ) {
-		
+	public Room( String type, int houseFloor, Utilities util ) {
 		this.floor = houseFloor;
 		this.selected = false;
+		this.util = util;
 		
 		if(type.contains("EmptyFloor1") || type.contains("00")){
 			initEmptyGroundFloor();
@@ -548,7 +545,7 @@ public class Room {
 	}*/
 	
 	private void createRoomLabel(){
-		this.roomLabel = new JLabel(labelText, new ImageIcon( "roomIcons/" + getImageURL() +".png" ) , JLabel.CENTER);
+		this.roomLabel = new JLabel(labelText, util.loadImage( "roomIcons/" + getImageURL() + ".png" ), JLabel.CENTER);
         this.roomLabel.setIconTextGap(-55);
         this.roomLabel.setForeground(Color.WHITE);
         //stops long roomnames breaking everything
@@ -579,7 +576,9 @@ public class Room {
 			imageURL += "w";
 		}
 		if(this.type.equals("") || this.type.equals(" ") || this.type.equals("  ")){
-			imageURL += "empty";
+			if(imageURL.equals("d") || imageURL.equals("u")){
+				imageURL += "empty";
+			} else imageURL = "empty";
 		} else if(this.type.contains("Garden")){
 			imageURL += "garden";
 		} else if(this.type.contains("Dungeon")){
@@ -594,10 +593,6 @@ public class Room {
 
 		return imageURL;		
 	}
-	
-	/*private void createRoomImageLabel(){
-		this.roomImageLabel = new JLabel("", new ImageIcon( "roomPics/" + getRoomImageURL() + ".jpg" ) , JLabel.CENTER);
-	}*/
 	
 	public String getRoomImage() {
 	    return this.roomImage;
@@ -625,22 +620,36 @@ public class Room {
 	}
 	
 	public void rotateRoomCw(){
+		//System.out.println("doorsLayout: " + doorLayout);
+		//for(int i = 0; i < 4; i++){
+		//	System.out.println(doorLayout[i]);
+		//}
 		boolean extra = this.doorLayout[3];
 		this.doorLayout[3] = this.doorLayout[2];
 		this.doorLayout[2] = this.doorLayout[1];
 		this.doorLayout[1] = this.doorLayout[0];
 		this.doorLayout[0] = extra;
 		this.imageURL = calculateRoomDoors();
+		//for(int i = 0; i < 4; i++){
+		//	System.out.println(doorLayout[i]);
+		//}
 		createRoomLabel();
 		this.roomLabel.setForeground(new Color(127, 2, 1));
 	}
 	public void rotateRoomCcw(){
+		//System.out.println("doorsLayout: " + doorLayout);
+		//for(int i = 0; i < 4; i++){
+		//	System.out.println(doorLayout[i]);
+		//}
 		boolean extra = this.doorLayout[0];
 		this.doorLayout[0] = this.doorLayout[1];
 		this.doorLayout[1] = this.doorLayout[2];
 		this.doorLayout[2] = this.doorLayout[3];
 		this.doorLayout[3] = extra;
 		this.imageURL = calculateRoomDoors();
+		//for(int i = 0; i < 4; i++){
+		//	System.out.println(doorLayout[i]);
+		//}
 		createRoomLabel();
 		this.roomLabel.setForeground(new Color(127, 2, 1));
 	}
@@ -668,7 +677,7 @@ public class Room {
 		return doorLayout;
 	}
 	public void setDoorLayout(boolean[] newDoorLayout){
-		doorLayout = newDoorLayout;
+		this.doorLayout = newDoorLayout;
 		this.imageURL = calculateRoomDoors();
 		createRoomLabel();
 	}
@@ -729,5 +738,4 @@ public class Room {
 	public void setRoomID(String newRoomID){
 		ID = newRoomID;
 	}
-	
 }
