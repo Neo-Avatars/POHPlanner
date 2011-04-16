@@ -40,18 +40,18 @@
 				// Activate on hover	
 				obj.hover(function(el){
 					if(obj.attr("title") !== ''){
-						$savedVariables.tooltipTitle = obj.attr("title");
+						savedTooltipTitle = obj.attr("title");
 					}
-					$savedVariables.tooltipID = obj.attr("id");
+					savedTooltipID = obj.attr("id");
 					/*console.log('tipContent: ' + tipContent);
 					console.log('this: ' + this);
 					console.log('obj: ' + obj);
 					console.log('title: ' + $(this).attr('title'));
 					console.log('id: ' + $(this).attr('id'));
-					console.log('saved title: ' + $savedVariables.tooltipTitle);
-					console.log('saved id: ' + $savedVariables.tooltipID);*/
+					console.log('saved title: ' + savedTooltipTitle);
+					console.log('saved id: ' + savedTooltipID);*/
 					obj.attr({title: ''});						  
-					$('body').append("<div class='"+ settings.toolTipClass +"'><p class='aToolTipContent'>"+ $savedVariables.tooltipTitle +"</p></div>");
+					$('body').append("<div class='"+ settings.toolTipClass +"'><p class='aToolTipContent'>"+ savedTooltipTitle +"</p></div>");
 					$('.' + settings.toolTipClass).css({
 						position: 'absolute',
 						display: 'none',
@@ -62,14 +62,14 @@
 					.stop().fadeIn(settings.inSpeed);	
 			    },
 				function(){ 
-					/*console.log('exit saved title: ' + $savedVariables.tooltipTitle);
-					console.log('exit saved id: ' + $savedVariables.tooltipID);*/
+					/*console.log('exit saved title: ' + savedTooltipTitle);
+					console.log('exit saved id: ' + savedTooltipID);*/
 					// Fade out
 					$('.' + settings.toolTipClass).stop().fadeOut(settings.outSpeed, function(){$(this).remove();});
-					$('#' + $savedVariables.tooltipID).attr("title", $savedVariables.tooltipTitle);
-					/*console.log('changed? title: ' + $($savedVariables.tooltipID).attr('title'));
-					console.log('the title: ' + $savedVariables.tooltipTitle);
-					console.log('the ID: ' + $savedVariables.tooltipID);
+					$('#' + savedTooltipID).attr("title", savedTooltipTitle);
+					/*console.log('changed? title: ' + $(savedTooltipID).attr('title'));
+					console.log('the title: ' + savedTooltipTitle);
+					console.log('the ID: ' + savedTooltipID);
 					console.log(' ');*/
 			    });	
 		    }

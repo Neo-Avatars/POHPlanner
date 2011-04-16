@@ -2,56 +2,15 @@
 
 /*-TRANSLATION */
 
-/*Adds the triggers to move the house */
-function addMoveHouseTriggers(){
-	$('#moveHouseList li a').overlay({
-		onBeforeLoad : function(e){
-			//work out what triggered the event
-			$trigger = this.getTrigger();
-			//fetch the values to pass to the function
-			var xDirection = convertStringToBoolean($trigger.attr('xDirection'));
-			var positiveDirection = convertStringToBoolean($trigger.attr('positiveDirection'));
-			//make the text in the error message correct
-			$('#moveHouseCompassDirection').html($trigger.attr('compass'));
-			return moveHouse(xDirection, positiveDirection);
-		}
-	});
-}
-
 /*Moves the house 1 square in the specified direction
 xDirection - true = move house from left to right, false = move house up and down
-positiveDirection - true = move house toward bottom / right, false = move house towards top / left
-Should only be called through a trigger related to the #demolishOnMove overlay
-Returns true if a confirmation dialogue should be shown, false otherwise */
+positiveDirection - true = move house toward bottom / right, false = move house towards top / left */
 function moveHouse(xDirection, positiveDirection){
+	//console.time("move");
+	var tempHouse = createEmptyHouseArray();
 	var yChange = xDirection ? positiveDirection ? -1 : 1 : 0;
 	var xChange = xDirection ? 0 : positiveDirection ? -1 : 1;
-	
-	//if there's something in the way
-	if(hasRoomThatWouldBeDeletedByMove(xChange, yChange)){
-		//if you haven't chosen to stop the warning message
-		if(!$house.noConfirmation.demolishOnMove){
-			//store the x and y changes encase the user wants to move the house anyway
-			$savedVariables.xChange = xChange;
-			$savedVariables.yChange = yChange;
-			//show the confirmation dialogue
-			return true;
-		} //if remembered the 'yes' setting, move the house
-		else if ($house.noConfSettings.demolishOnMove){
-			moveHouseConfirmed(xChange, yChange);
-		}
-		return false;
-	} else {
-		//move the house
-		moveHouseConfirmed(xChange, yChange);
-		return false;
-	}
-}
 
-/*Actually moves the house once it's been confirmed that it's possible and the user doesn't mind if rooms will be demolished by doing so */
-function moveHouseConfirmed(xChange, yChange){
-	var tempHouse = createEmptyHouseArray();
-	
 	//loop through the rooms and put things where they should be in a temporary array
 	for(var i = 0; i < 3; i++){
 		for(var j = 0; j < 9; j++){
@@ -62,55 +21,10 @@ function moveHouseConfirmed(xChange, yChange){
 			}
 		}
 	}
-	
+
 	//calculate the Sharing Code for this trans house and load it	
 	loadHouseFromSharingCode(calculateSharingCode(tempHouse));
-}
-
-/*Checks whether a room would be deleted if the house was moved in the specified manner
-Returns true if it would, false otherwise */
-function hasRoomThatWouldBeDeletedByMove(x, y){
-	var obstruction = false; //innocent until proven guilty
-	if(x === 1){
-		obstruction = hasRoomAlongEdge(0, false);
-	} else if(x === -1){
-		obstruction = hasRoomAlongEdge(8, false);
-	}
-	if(y === 1){
-		//only bother checking if there's been nothing found in the specified x-direction
-		if(!obstruction){
-			obstruction = hasRoomAlongEdge(0, true);
-		}
-	} else if(y === -1){
-		if(!obstruction){
-			obstruction = hasRoomAlongEdge(8, true);
-		}
-	}
-	
-	return obstruction;
-}
-
-/*Checks to see if there's a room built along the specified edge of the house
-sideNumber = (edge === 'left' || edge === 'top') ? 0 : 8; //the number of the side
-x = (edge === 'top' || edge === 'bottom') ? true : false; //whether you're checking a horizontal row
-Returns true if there is, otherwise false */
-function hasRoomAlongEdge(sideNumber, x){
-	//loop through the floors
-	for(var i = 0; i < 3; i++){
-		//and one row / column on each floor
-		for(var j = 0; j < 9; j++){
-			if(x){
-				if(houseArray[i][j][sideNumber].labelText !== ' '){
-					return true;
-				}
-			} else {
-				if(houseArray[i][sideNumber][j].labelText !== ' '){
-					return true;
-				}
-			}
-		}
-	}
-	return false;
+	//console.timeEnd("move");
 }
 
 /*-ROTATIONS AND REFLECTIONS */

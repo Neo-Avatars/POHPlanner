@@ -13,75 +13,13 @@ var $house = {
 	loading : false, //loading a layout from a Sharing Code
 	hasCostumeRoom : false, //the house has a costume room built (can only have one)
 	hasMenagerie : false, //the house has a menagerie built (can only have one)
-	noConfirmation : { //whether you should ignore...
-		demolishOnMove : false, //the warning about rooms being demolished when moving a house too far in any direction
-		levelLimit : false, //level limits when building a room or furniture
-		maxRoomLimit : false //the maxRooms limit that the house has
-	},
-	noConfSettings : { //settings to remember the choice when the 'Remember this choice' box is ticked
-		demolishOnMove : false //false = 'no', true = 'yes'
-	}
+	ignoreLevelLimits : false //whether you should ignore level limits when building a room
 };
-
-var $stats = { //the user's stats
-	attack : 1,
-	defence : 1,
-	strength : 1,
-	hitpoints : 10,
-	ranged : 1,
-	prayer : 1,
-	magic : 1,
-	cooking : 1,
-	woodcutting : 1,
-	fletching : 1,
-	fishing : 1,
-	firemaking : 1,
-	crafting : 1,
-	smithing : 1,
-	mining : 1,
-	herblore : 1,
-	agility : 1,
-	thieving : 1,
-	slayer : 1,
-	farming : 1,
-	runecrafting : 1,
-	hunter : 1,
-	construction : 1,
-	summoning : 1
-};
-
-/*Sets the specified stat to the specified level */
-function setStat(skill, level){
-	if(level < 1){//can't have negative levels
-		level = 1;
-	} else if (level > 99){//or ones above 99
-		level = 99;
-	}
-	//calculate the maximum number of rooms if you're setting a new Construction level
-	if(skill === "construction"){
-		setMaxRooms(level);
-	}
-	$stats[skill] = level;
-}
-
-/*Sets the maximum number of rooms that you can have built based on your Construction level and updates the relevant visible information */
-function setMaxRooms(level){
-	$house.maxRooms = calculateMaxRooms(level);
-	updateNumberOfRooms();
-}
-
-/*Returns the maximum number of rooms you can build with the specified Construction level */
-function calculateMaxRooms(level){
-	var max = level < 38 ? 20 : level >= 99 ? 32 : level > 95 ? 31 : Math.floor(20 + ((level - 32) / 6));
-	return max;
-}
 
 var houseArray; //the array that makes up the house - created in initHouseArray()
 //var roomsArray; //an array of all the different types of room, set in POH-rooms.js
-var $savedVariables = { //somewhere to store temporary variables when the code goes off to do something else
-	//tooltipTitle : '', //a variable to make the aToolTips work as wanted
-	//tooltipID : '', //another variable to make the aToolTips work as wanted
-};
+var savedTooltipTitle; //a variable to make the aToolTips work as wanted
+var savedTooltipID; //another variable to make the aToolTips work as wanted
 
 /*-DATA CLASSES */
 /*Room*/
@@ -119,16 +57,6 @@ function checkArrayContentsAreTheSame(arrayOne, arrayTwo){
 		}
 	}
 	return true;
-}
-
-/*Returns true if there's a string input of 'true' otherwise returns false */
-function convertStringToBoolean(input){
-	return input === 'true' ? true : false;
-}
-
-/*Returns the string with a capitalised first letter */
-function capitaliseString(str){
-	return str.substr(0,1).toUpperCase() + str.substr(1,str.length);
 }
 
 /*Sets the ID (location) of the currently selected room in Overview mode*/
@@ -384,7 +312,7 @@ $( document ).ready( function() {
 	//$('.map').maphilight();
 	//$('area').aToolTip({inSpeed: 400, outSpeed: 100});
 
-	console.time("document ready");
+	//console.time("document ready");
 
 	//generate the core divs that everything will go in
 	initCoreDivs();
@@ -412,21 +340,18 @@ $( document ).ready( function() {
 	//the Room Building Frame when first choosing to build a room upstairs above them
 	buildDefaultRooms();
 	
-	//adds the various events to buttons in the modal dialogues
-	//initDialogueButtonEvents();
-	initDialogues();
-	
-	//initMoveHouseTriggers();
-	//console.log(addHouseMoveTriggers());
-	
 	//console.log('Planner width: ' + $('#POHPlanner').width());
 	//console.log('width: ' + ($('#houseOverview').width() + $('#infoPanel').width()));
 	//console.log('height: ' + $('#houseOverview').height());
+	
+	//console.timeEnd("document ready");
 
 	$house.initialised = true;
 	
-	console.timeEnd("document ready");
+	//transformHouseByMatrix(-1, 0, 0, -1);
 
+	//console.log(transformRoomByMatrix(8, 8, 1, 0, 0, -1));
+	
 	//var t = document.getElementById('POHPlanner').innerHTML;
 	//console.log(t.length);
 });

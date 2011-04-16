@@ -1,45 +1,3 @@
-/*-CONFIRMATION DIALOGUES AND ERROR MESSAGES */
-//http://stackoverflow.com/questions/358168/how-to-create-a-custom-confirm-pause-js-execution-until-user-clicks-button
-
-function initDialogues(){
-	initDialogueButtonEvents();
-	initTriggers();
-	initDialogueStoppingInputs();
-}
-
-/*Gives a way to stop the confirmation dialogues appearing again */
-function initDialogueStoppingInputs(){
-	$('#confirmationDialogues .modalConfirmationButtons').each(function(){
-		$(this).after(createDialogueStoppingInputs($(this).attr("id")))
-	});
-}
-
-/*Adds the various events to buttons in the modal dialogues */
-function initDialogueButtonEvents(){
-	//confirm house movement when room(s) would be demolished by doing so
-	var demolishOnMoveButtons = $("#demolishOnMove button").click(function(e){
-		//see if they want to continue with the move anyway
-		var continueAnyway = demolishOnMoveButtons.index(this) === 0;
-		
-		//remember the setting if the box is checked
-		if($('#demolishOnMoveButtonsCheck').is(':checked')){
-			$house.noConfirmation.demolishOnMove = true;
-			$house.noConfSettings.demolishOnMove = continueAnyway ? true : false;
-		}
-
-		if(continueAnyway){
-			moveHouseConfirmed($savedVariables.xChange, $savedVariables.yChange);
-		}
-	});
-}
-
-/*-HIDDEN STUFF THAT YOU CAN'T SEE RELATED TO DIALOGUES */	
-
-/*Initialises triggers for buttons in various confirmation dialogues */
-function initTriggers(){
-	addMoveHouseTriggers();
-}
-
 /*-THE GIANT DIVs THAT HOUSE EVERYTHING */
 
 /*Creates the core DIVs that house everything */
@@ -139,9 +97,6 @@ function initInfoPanel(){
 	$('#infoPanelFloorAndCharStats').html(createInfoPanelFloorAndCharStatsContent());
 	$('#floorAndCharStatsTable tr').aToolTip();
 	$('#floorAndCharStatsTable input').aToolTip();
-	
-	//create a way to view your stats
-	$('#userStatsFrameInner').html(createStatsAndQuestStatusContent());
 
 	//create content for the House Stats section
 	initHouseStatsContent();

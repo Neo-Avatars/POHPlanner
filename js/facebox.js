@@ -148,15 +148,6 @@
 				widgets: ['zebra'],
 				sortList: [[2,0],[3,0],[1,0]]
 			});
-		  } else if($table.attr("id") === "userStatsTable"){
-			$table.tablesorter({
-				widgets: ['zebra'],
-				sortList: [[1,0]]
-			});
-			//autoupdate the stats when a textbox loses focus
-			$('#facebox .body  #userStatsTable .userStatsInput').blur(function(){
-				setStat($(this).attr("name"), parseInt($(this).val()));
-			});
 		  } else {
 			$table.tablesorter({
 				widgets: ['zebra']

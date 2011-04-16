@@ -3,15 +3,13 @@
 <head>
 <title>POHPlanner</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<link type="text/css" href="css/POHPlanner.css" rel="stylesheet"  media="screen" />
+<link type="text/css" href="css/POHPlanner.css" rel="stylesheet"  media="screen" /> 
 <script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery.maphilight.min.js"></script>
 <script type="text/javascript" src="js/atooltip.jquery.js"></script>
 <script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
 <script type="text/javascript" src="js/facebox.js"></script>
-<script type="text/javascript" src="js/tools.overlay-1.1.2.js"></script>
-<script type="text/javascript" src="js/tools.expose-1.0.5.js"></script>
 <script type="text/javascript" src="js/POH-rooms.js"></script>
 <script type="text/javascript" src="js/POH-HTMLgeneration.js"></script>
 <script type="text/javascript" src="js/POH-initialisation.js"></script>
@@ -29,44 +27,9 @@
 <div id="Ctrl-U_is_totally_ftw_though_you_need_to_do_more_searching_to_find_anything_interesting"></div>
 </div>
 
-<div id="modalMessages">
-<div id="errorMessages"></div>
-<div id="confirmationDialogues">
-	<div class="modal" id="maxRoomLimit">
-		<h2>Too many rooms!</h2>
-		
-		<p>There are already the maximum number of rooms, <span id="buildRoomMaxRooms">20</span>, that your 
-		specified Construction level allows.</p>
-		<p>Are you sure want to continue?</p>
-		
-		<p id="maxRoomLimitButtons" class="modalConfirmationButtons" error="maxRoomLimit">
-			<button class="close">Yes</button>
-			<button class="close">No</button>
-		</p>
-	</div>
-	
-	<div class="modal" id="demolishOnMove">
-		<h2>Movement will Demolish Rooms</h2>
-		
-		<p>There are rooms in the <span id="moveHouseCompassDirection">north</span> side of the house which will
-		be demolished if you move the house any further.</p>
-		<p>Are you sure want to continue?</p>
-		
-		<p id="demolishOnMoveButtons" class="modalConfirmationButtons" error="demolishOnMove">
-			<button class="close">Yes</button>
-			<button class="close">No</button>
-		</p>
-	</div>
-</div>
-</div>
+<div id="spam"></div>
 
-<div id="houseSettingsFrame" style="display:none;"></div>
-
-<div id="userStatsFrame" style="display:none;">
-<div id="userStatsFrameInner" class="faceboxScrollPane"></div>
-</div>
-
-<div id="roomBuildingFrame" class="faceboxScrollPane" style="display:none;"></div>
+<div id="roomBuildingFrame" style="display:none;"></div>
 
 <!--<img src="java screenshot.png" />
 
