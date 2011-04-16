@@ -1,0 +1,622 @@
+body {
+	font-family: Verdana, Tahoma, Arial, Times, Serif;
+	font-size: 12px;
+	background-color: #DABA94;
+}
+
+/* Tooltip */
+.aToolTip {
+	border: 2px solid #444;
+	background: #555;
+	color: #fff;
+	margin: 0;
+	padding: 3px 6px;
+	opacity: 0.8;
+}
+
+.aToolTip .aToolTipContent {
+	position: relative;
+	margin: 0;
+	padding: 0;
+}
+
+.loadingPanel {
+	width: 700px;
+	height: 200px;
+	background-color: #087014;
+	padding-top: 40px;
+}
+
+/*The div that the entire planner can be found within */
+#POHPlanner {
+	width: 741px;
+}
+
+.POHPlanner {
+	padding-bottom: 550px;
+}
+
+/*The bar across the top with the menus and such in */
+#topBar {
+	width: 100%;
+	height: 30px;
+	background: #F61;
+}
+
+#topBarMenu {
+	float: left;
+}
+
+#topBarSharingDiv {
+	float: right;
+	padding-right: 2px;
+}
+
+#sharingCodeLabel {
+	font-weight: bold;
+}
+
+#sharingCodeInput {
+	line-height: 22px;
+	width: 400px;
+	border: 1px solid #000;
+}
+
+#loadSharingCodeButton {
+	width: 50px;
+}
+
+/*The info panel (the panel to the right of the house) - bg in #infoPanelBorder */
+#infoPanel {
+	height: 505px;
+	padding: 8px;
+	color: #333;
+}
+
+/*Content for the #infoPanel */
+/*floorAndCharStats */
+#floorAndCharStatsTable {
+	width: 100%;
+}
+
+#usernameInput{
+	width: 100px;
+}
+
+.floorAndCharStatsHeading {
+	font-weight: bold;
+}
+
+input, select {
+	width: 100%;
+}
+
+/*The House and Room Stats tables*/
+#houseStatsTable, #roomStatsTable, #roomButtonsTable {
+	margin-top: 10px;
+	width: 100%;
+}
+
+.statsTableHeading {
+	font-size: 16px;
+	padding-bottom: 5px;
+	color: #00F;
+}
+
+.statsHeading {
+	font-weight: bold;
+	width: 65%;
+}
+
+/*The Room Buttons */
+#infoPanelRoomButtons {
+	padding-top: 5px;
+}
+
+.overviewRoomButton {
+	text-align: center;
+	line-height: 22px;
+	background: #FFF;
+	border: 1px solid #000;
+	margin-top: 4px;
+	cursor: pointer;
+}
+
+.overviewRoomButton:hover {
+	background: #CCC;
+}
+
+/* Overview Mode */
+/* Where the house is */
+#houseOverview {
+	height: 513px;
+	display: block;
+	padding: 4px;
+}
+
+/* One of the rooms which can be clicked on */
+.room {
+	width: 57px;
+	height: 57px;
+	border: 0px solid #000;
+	overflow: hidden;
+	text-align: center;
+}
+
+/* Make it so you can click on the entire room rather than just the text */
+a.overviewLink, .room a {
+	display: block;
+	height: 57px;
+	cursor: pointer;
+	text-decoration: none;
+	color: #00F;
+	font-weight: bold;
+	padding-top: 10px;
+}
+
+.selectedRoom a {
+	color: #F00;
+}
+
+/* A column of 9 rooms */
+.roomColumn {
+	display: inline;
+	float: left;
+}
+
+/* The background images for rooms with different door layouts in overview mode */
+.ROIdempty {
+	background: url('../roomIcons/dempty.png');
+}
+.ROIdet {
+	background: url('../roomIcons/det.png');
+}
+.ROIdew {
+	background: url('../roomIcons/dew.png');
+}
+.ROIdneswj {
+	background: url('../roomIcons/dneswj.png');
+}
+.ROIdnesws {
+	background: url('../roomIcons/dnesws.png');
+}
+.ROIdns {
+	background: url('../roomIcons/dns.png');
+}
+.ROIdnt {
+	background: url('../roomIcons/dnt.png');
+}
+.ROIdst {
+	background: url('../roomIcons/dst.png');
+}
+.ROIdwt {
+	background: url('../roomIcons/dwt.png');
+}
+.ROIe {
+	background: url('../roomIcons/e.png');
+}
+.ROIempty {
+	background: url('../roomIcons/empty.png');
+}
+.ROIes {
+	background: url('../roomIcons/es.png');
+}
+.ROIesw {
+	background: url('../roomIcons/esw.png');
+}
+.ROIew {
+	background: url('../roomIcons/ew.png');
+}
+.ROIn {
+	background: url('../roomIcons/n.png');
+}
+.ROIne {
+	background: url('../roomIcons/ne.png');
+}
+.ROInes {
+	background: url('../roomIcons/nes.png');
+}
+.ROInesw {
+	background: url('../roomIcons/nesw.png');
+}
+.ROIneswgarden {
+	background: url('../roomIcons/neswgarden.png');
+}
+.ROInew {
+	background: url('../roomIcons/new.png');
+}
+.ROIns {
+	background: url('../roomIcons/ns.png');
+}
+.ROInsw {
+	background: url('../roomIcons/nsw.png');
+}
+.ROInw {
+	background: url('../roomIcons/nw.png');
+}
+.ROIprobableError {
+	background: url('../roomIcons/probableError.png');
+}
+.ROIs {
+	background: url('../roomIcons/s.png');
+}
+.ROIsw {
+	background: url('../roomIcons/sw.png');
+}
+.ROIuempty {
+	background: url('../roomIcons/uempty.png');
+}
+.ROIw {
+	background: url('../roomIcons/w.png');
+}
+
+/* A default setting to make sure you don't have lots of floors visible that you don't want */
+.overviewFloor, .hidden {
+	display: none;
+}
+
+/*Main Borders*/
+
+/* Around the main house in Overview mode */
+#overviewBorder {
+	float: left;
+	width: 521px;
+}
+
+/* Around the info panel */
+#infoPanelBorder {
+	float: left;
+	width: 220px;
+	background: #D9C6A3;
+}
+
+/* The borders themselves */
+.pohBorderTop, .pohBorderBottom , .pohBorderLeft, .pohBorderRight{
+	height: auto;
+}
+
+.pohBorderTop {
+	background: url('images/border-t.png') repeat-x scroll top;
+}
+
+.pohBorderBottom {
+	background: url('images/border-b.png') repeat-x scroll bottom;
+}
+
+.pohBorderLeft {
+	background: url('images/border-l.png') repeat-y scroll left;
+}
+
+.pohBorderRight {
+	background: url('images/border-r.png') repeat-y scroll right;
+}
+
+.pohBorderCornerTR {
+	background: url('images/border-corner-tr.png') no-repeat scroll top right;
+}
+
+.pohBorderCornerTL {
+	background: url('images/border-corner-tl.png') no-repeat scroll top left;
+}
+
+.pohBorderCornerBR {
+	background: url('images/border-corner-br.png') no-repeat scroll bottom right;
+}
+
+.pohBorderCornerBL {
+	background: url('images/border-corner-bl.png') no-repeat scroll bottom left;
+}
+
+/* Somewhere to put the list of rooms you can build */
+
+#roomBuildingFrame {
+	overflow: auto;
+	height: 350px;
+}
+
+/* Facebox - the thing that building table appears in */
+
+#facebox .b {
+  background:url('images/facebox-b.png');
+}
+
+#facebox .tl {
+  background:url('images/facebox-tl.png');
+}
+
+#facebox .tr {
+  background:url('images/facebox-tr.png');
+}
+
+#facebox .bl {
+  background:url('images/facebox-bl.png');
+}
+
+#facebox .br {
+  background:url('images/facebox-br.png');
+}
+
+#facebox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  text-align: left;
+}
+
+#facebox .popup {
+  position: relative;
+}
+
+#facebox table {
+  border-collapse: collapse;
+}
+
+#facebox td {
+  border-bottom: 0;
+  padding: 0;
+}
+
+#facebox .body {
+  padding: 10px;
+  background: #fff;
+  width: 370px;
+}
+
+#facebox .loading {
+  text-align: center;
+}
+
+#facebox .image {
+  text-align: center;
+}
+
+#facebox img {
+  border: 0;
+  margin: 0;
+}
+
+#facebox .footer {
+  border-top: 1px solid #DDDDDD;
+  padding-top: 5px;
+  margin-top: 10px;
+  text-align: right;
+}
+
+#facebox .tl, #facebox .tr, #facebox .bl, #facebox .br {
+  height: 10px;
+  width: 10px;
+  overflow: hidden;
+  padding: 0;
+}
+
+#facebox_overlay {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  height:100%;
+  width:100%;
+}
+
+.facebox_hide {
+  z-index:-100;
+}
+
+.facebox_overlayBG {
+  background-color: #000;
+  z-index: 99;
+}
+
+* html #facebox_overlay { /* ie6 hack */
+  position: absolute;
+  height: expression(document.body.scrollHeight > document.body.offsetHeight ? document.body.scrollHeight : document.body.offsetHeight + 'px');
+}
+
+/*Tablesorter styles - room building table - custom colours */
+
+table.tablesorter {
+	font-family:arial;
+	background-color: #CDCDCD;
+	margin:10px 0pt 15px;
+	font-size: 8pt;
+	width: 100%;
+	text-align: left;
+}
+table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+	background-color: #E0BC90;
+	border: 1px solid #FFF;
+	font-size: 8pt;
+	padding: 4px;
+}
+table.tablesorter thead tr .header {
+	background-image: url('images/tablesorter-bg.gif');
+	background-repeat: no-repeat;
+	background-position: center right;
+	cursor: pointer;
+}
+table.tablesorter tbody tr td {
+	border: 0px solid #FFF; /*stops white borders randomly appearing in FF*/
+}
+table.tablesorter tbody tr {
+	color: #3D3D3D;
+	padding: 4px;
+	background-color: #F7D3A6;
+	vertical-align: middle; /*changed from 'top' */
+}
+table.tablesorter tbody tr.odd {
+	background-color:#E1BD90;
+}
+table.tablesorter thead tr .headerSortUp {
+	background-image: url('images/tablesorter-asc.gif');
+}
+table.tablesorter thead tr .headerSortDown {
+	background-image: url('images/tablesorter-desc.gif');
+}
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
+	background-color: #C8A27D;
+}
+table.tablesorter tbody td.tablesorterRoomIcon {
+	text-align: center;
+}
+table.tablesorter tbody tr:hover {
+	background-color:#EBC79A;
+	cursor:pointer;
+	border:1px dashed #FFDB9A;
+}
+table.tablesorter tbody tr.odd:hover {
+	background-color:#D4B084;
+	cursor:pointer;
+	border:1px dashed #FFDB9A;
+}
+
+/* ================================================================ 
+This copyright notice must be untouched at all times.
+ 
+The original version of this stylesheet and the associated (x)html
+is available at http://www.cssplay.co.uk/menus/final_drop.html
+Copyright (c) 2005-2008 Stu Nicholls. All rights reserved.
+This stylesheet and the associated (x)html may be modified in any 
+way to fit your requirements.
+=================================================================== */
+
+.POHmenu {
+	width:100px;
+	height:30px;
+	position:relative;
+	z-index:100;
+	border-right:1px solid #000;
+	font-family:arial, sans-serif;
+}
+/* hack to correct IE5.5 faulty box model */
+* html .POHmenu {
+	width:100px;
+	w\idth:99px;
+}
+/* remove all the bullets, borders and padding from the default list styling */
+.POHmenu ul {
+	padding:0;
+	margin:0;
+	list-style-type:none;
+}
+.POHmenu ul ul {
+	width:100px;
+}
+/* float the list to make it horizontal and a relative positon so that you can control the dropdown menu positon */
+.POHmenu li {
+	float:left;
+	width:100px;
+	position:relative;
+}
+/* style the links for the top level */
+.POHmenu a, .POHmenu a:visited {
+	display:block;
+	font-size:12px;
+	text-decoration:none;
+	color:#fff;
+	width:99px;
+	height:28px;
+	border:1px solid #000;
+	border-width:1px 0 1px 1px;
+	background:#09c;
+	padding-left:0px;
+	line-height:28px;
+	font-weight:bold;
+	text-align:center;
+}
+/* a hack so that IE5.5 faulty box model is corrected */
+* html .POHmenu a, * html .POHmenu a:visited {
+	width:100px;
+	w\idth:89px;
+} 
+/* style the second level background */
+.POHmenu ul ul a.drop, .POHmenu ul ul a.drop:visited {
+	background:#d4d8bd url(http://www.cssplay.co.uk/menus/breadcrumbs/grey-arrow.gif) no-repeat 130px center;
+}
+/* style the second level hover */
+.POHmenu ul ul a.drop:hover{
+	background:#c9ba65 url(http://www.cssplay.co.uk/menus/breadcrumbs/blue-arrow.gif) no-repeat 130px center;
+}
+.POHmenu ul ul :hover > a.drop {
+	background:#c9ba65 url(http://www.cssplay.co.uk/menus/breadcrumbs/blue-arrow.gif) no-repeat 130px center;
+}
+/* style the third level background */
+.POHmenu ul ul ul a, .POHmenu ul ul ul a:visited {
+	background:#e2dfa8;
+}
+/* style the third level hover */
+.POHmenu ul ul ul a:hover {
+	background:#b2ab9b;
+} 
+/* hide the sub levels and give them a positon absolute so that they take up no room */
+.POHmenu ul ul {
+	visibility:hidden;
+	position:absolute;
+	height:0;
+	top:29px;
+	left:0;
+	width:100px;
+	border-top:1px solid #000;
+}
+/* another hack for IE5.5 */
+* html .POHmenu ul ul {
+	top:30px;
+	t\op:31px;
+} 
+/* position the third level flyout menu */
+.POHmenu ul ul ul{
+	left:100px;
+	top:-1px;
+	width:100px;
+} 
+/* position the third level flyout menu for a left flyout */
+.POHmenu ul ul ul.left {
+	left:-100px;
+} 
+/* style the table so that it takes no ppart in the layout - required for IE to work */
+.POHmenu table {
+	position:absolute;
+	top:0;
+	left:0;
+	border-collapse:collapse;;
+} 
+/* style the second level links */
+.POHmenu ul ul a, .POHmenu ul ul a:visited {
+	background:#d4d8bd;
+	color:#000;
+	height:auto;
+	line-height:1em;
+	padding:5px 10px;
+	width:79px;
+	border-width:0 1px 1px 1px;
+	text-align:left;
+}
+/* yet another hack for IE5.5 */
+* html .POHmenu ul ul a, * html .POHmenu ul ul a:visited {
+	width:101px;
+	w\idth:79px;
+}
+/* style the third level links */
+.POHmenu ul ul ul a, .POHmenu ul ul ul a:visited {
+	width:200px;
+}
+/* style the top level hover */
+.POHmenu a:hover, .POHmenu ul ul a:hover{
+	color:#000;
+	background:#b7d186;
+}
+.POHmenu :hover > a, .POHmenu ul ul :hover > a {
+	color:#000;
+	background:#b7d186;
+} 
+/* make the second level visible when hover on first level list OR link */
+.POHmenu ul li:hover ul, .POHmenu ul a:hover ul{
+	visibility:visible;
+}
+/* keep the third level hidden when you hover on first level list OR link */
+.POHmenu ul :hover ul ul{
+	visibility:hidden;
+}
+/* make the third level visible when you hover over second level list OR link */
+.POHmenu ul :hover ul :hover ul{
+	visibility:visible;
+}
