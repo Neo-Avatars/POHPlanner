@@ -34,6 +34,7 @@ public class Room {
         this.ID = room.ID;
         this.imageURL = calculateRoomDoors();
         this.selected = false;
+		
         
         if(room.type.contains("EmptyFloor1") || room.type.contains("EmptyDungeon")){
 			this.type = "";

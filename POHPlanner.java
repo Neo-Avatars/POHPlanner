@@ -2407,7 +2407,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	 * @return The number of rooms that can be built at that level
 	 */
 	public int getRoomNumberLimit(int level){
-		int limit=level<50 ? 20: level>=99 ? 30: level>95 ? 29: (int)Math.floor(20+((level-44)/6));
+		int limit=level<38 ? 20: level>=99 ? 32: level>95 ? 31: (int)Math.floor(20+((level-32)/6));
 		return limit;
 	}
 	/**
