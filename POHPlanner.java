@@ -3161,6 +3161,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
                     Integer.parseInt( linePieces[2] ),
                     true
                 ) );
+                System.out.println(Integer.parseInt(linePieces[1]));
                 if(lineNumber > 1 && lineNumber < 26){
                 	statsPanelHash.get(lineNumber-2).getLevelBox().setText(linePieces[1]);
                 }
