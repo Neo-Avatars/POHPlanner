@@ -154,8 +154,10 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	private LinkedHashMap<Object, String> roomIDHash = new LinkedHashMap<Object, String>();
 	private LinkedHashMap<Object, Room> roomHash = new LinkedHashMap<Object, Room>();
 	private LinkedHashMap<Object, Hotspot> hotspotHash = new LinkedHashMap<Object, Hotspot>();
+	private LinkedHashMap<Object, String> furniIDHash = new LinkedHashMap<Object, String>();
 	private LinkedHashMap<Object, Furniture> furniHash = new LinkedHashMap<Object, Furniture>();
-	private LinkedHashMap<Object, Materials> matHash = new LinkedHashMap<Object, Materials>();
+	private LinkedHashMap<Object, String> materialIDHash = new LinkedHashMap<Object, String>();
+	private LinkedHashMap<Object, Materials> materialHash = new LinkedHashMap<Object, Materials>();
 	
 	//lets you split strings
 	String[] splitArray = null;
@@ -340,6 +342,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	//private boolean[] fourTrues = new boolean[]{true, true, true, true}; //was used
 	
 	public void init() {
+		
 		initialising = true;
 	    initMenuBar();
 		initLoadingPanel();
@@ -358,6 +361,14 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		loadingLabel.setText("Loading . . . Initialising Furniture Construction");
 		initFurniBuildingFrame();
 		//needs to be done in 'reverse order' - smallest to largest
+		loadingLabel.setText("Loading . . . Creating Material IDs");
+		materialIDHash = initMaterialDHash(materialIDHash);
+		loadingLabel.setText("Loading . . . Creating Materials");
+		materialHash = initMaterialHash(materialHash);
+		loadingLabel.setText("Loading . . . Creating Furniture IDs");
+		furniIDHash = initFurniIDHash(furniIDHash);
+		loadingLabel.setText("Loading . . . Creating Furniture");
+		furniHash = initFurniHash(furniHash);
 		loadingLabel.setText("Loading . . . Creating Hotspots");
 		hotspotHash = initHotspotHash(hotspotHash);
 		loadingLabel.setText("Loading . . . Creating Room IDs");
@@ -386,7 +397,6 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		menuHouseCodeButton.setEnabled(true);
 		calculateSharingCode();
 		initialising = false;
-
 	}
 
 	/**
@@ -510,31 +520,32 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		viewStatsSaveButton.setToolTipText("Save your stats");
 		
 		//create the various skills
+		int numberOfStats = 24;
 		statsPanelHash.put(0, new StatsPane("Attack", 1, util));
 		statsPanelHash.put(1, new StatsPane("Defence", 2, util));
 		statsPanelHash.put(2, new StatsPane("Strength", 3, util));
 		statsPanelHash.put(3, new StatsPane("Hitpoints", 4, util));
 		statsPanelHash.put(4, new StatsPane("Ranged", 5, util));
-		loadingLabel.setText("Loading . . . Initialising Stat Editor 5/24");
+		loadingLabel.setText("Loading . . . Initialising Stat Editor 5/"+numberOfStats);
 		statsPanelHash.put(5, new StatsPane("Prayer", 6, util));
 		statsPanelHash.put(6, new StatsPane("Magic", 7, util));
 		statsPanelHash.put(7, new StatsPane("Cooking", 8, util));
 		statsPanelHash.put(8, new StatsPane("Woodcutting", 9, util));
 		statsPanelHash.put(9, new StatsPane("Fletching", 10, util));
-		loadingLabel.setText("Loading . . . Initialising Stat Editor 10/24");
+		loadingLabel.setText("Loading . . . Initialising Stat Editor 10/"+numberOfStats);
 		statsPanelHash.put(10, new StatsPane("Fishing", 11, util));
 		statsPanelHash.put(11, new StatsPane("Firemaking", 12, util));
 		statsPanelHash.put(12, new StatsPane("Crafting", 13, util));
 		statsPanelHash.put(13, new StatsPane("Smithing", 14, util));
 		statsPanelHash.put(14, new StatsPane("Mining", 15, util));
-		loadingLabel.setText("Loading . . . Initialising Stat Editor 15/24");
+		loadingLabel.setText("Loading . . . Initialising Stat Editor 15/"+numberOfStats);
 		statsPanelHash.put(15, new StatsPane("Herblore", 16, util));
 		statsPanelHash.put(16, new StatsPane("Agility", 17, util));
 		statsPanelHash.put(17, new StatsPane("Thieving", 18, util));
 		statsPanelHash.put(18, new StatsPane("Slayer", 19, util));
 		statsPanelHash.put(19, new StatsPane("Farming", 20, util));
 		statsPanelHash.put(20, new StatsPane("Runecrafting", 21, util));
-		loadingLabel.setText("Loading . . . Initialising Stat Editor 20/24");
+		loadingLabel.setText("Loading . . . Initialising Stat Editor 20/"+numberOfStats);
 		statsPanelHash.put(21, new StatsPane("Hunter", 22, util));
 		statsPanelHash.put(22, new StatsPane("Construction", 23, util));
 		statsPanelHash.put(23, new StatsPane("Summoning", 24, util));
@@ -1160,7 +1171,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		buildRoom("overviewRoom144", "Garden", 1);
 		
 		//add exit portal to Garden
-		houseHash.get("overviewRoom144").getHotspots()[0].setBuiltFurniture(new Furniture("Exit Portal"));
+		houseHash.get("overviewRoom144").getHotspots()[0].setBuiltFurniture(new Furniture(furniHash.get("Exit Portal")));
 		
 		initialisingRoomAray = false;
 	}
@@ -1922,7 +1933,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		updateRightHouseOverviewPanel(false, false, viewingRoom);
 		
 		//delete anything that may be in the selected spot
-		houseHash.get( roomKey ).getHotspots()[hotspotID].setBuiltFurniture(new Furniture("None"));
+		houseHash.get( roomKey ).getHotspots()[hotspotID].setBuiltFurniture(new Furniture(furniHash.get("None")));
 		//hide build panel
 		furniBuildingFrame.setVisible(false);
 		viewingFurniBuildFrame = false;
@@ -1951,7 +1962,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 			
 			//build the new things
 			houseHash.get( roomKey ).getHotspots()[hotspotID].
-			setBuiltFurniture(new Furniture(furniBuildHash.get( panelID ).getFurni().getFurniType()));
+			setBuiltFurniture(new Furniture(furniHash.get(furniBuildHash.get( panelID ).getFurni().getFurniType())));
 
 			//hide build panel
 			furniBuildingFrame.setVisible(false);
@@ -2216,7 +2227,6 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	 * big text box at the top with it
 	 */
 	public void calculateSharingCode(){
-		
 		//if(!initialising){ //stops it being run twice when initialising //reverted to old code, so commented out
 			String hashKey = "";
 			String code = "";
@@ -2275,10 +2285,9 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		String code = menuHouseCodeTextbox.getText();
         String[] codePieces = code.split( "," );
         String hashKey = "";
-        String roomType = "";
         String roomID = "";
+        String furniID = "";
         int floor = 0;
-        String furniType = "";
         boolean[] doors = new boolean[4];
         boolean load = true;
         int roomsToLoad = codePieces.length;
@@ -2339,14 +2348,13 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	        	
 	        	//work out the room type
 	        	roomID = codePieces[i].substring(3, 5);
-	        	roomType = roomIDHash.get(roomID);
 	        	
 	        	//System.out.println("roomtype: " + roomType + " floor: " + floor + " location: " + hashKey);
 	        	
 	        	//build a new room of specified type in specified spot
 	        	//houseLoadHash.put(hashKey, new Room(roomType, floor));
 	        	//System.out.println("key: " + hashKey + " type: " + roomType + " floor: " + floor);
-	        	buildRoom(hashKey, roomType, floor);
+	        	buildRoom(hashKey, roomIDHash.get(roomID), floor);
 	        	
 	        	//make sure the doors are correct
 	        	//add the door layout
@@ -2369,12 +2377,12 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	        	//loop through the furniture and build it
 	        	for(int j = 0; j < houseHash.get(hashKey).getHotspots().length; j++){
 	        		//work out the furni type
-	        		furniType = codePieces[i].substring((9+(j*2)), (11+(j*2)));
+	        		furniID = codePieces[i].substring((9+(j*2)), (11+(j*2)));
 	        		
 	        		//System.out.println("furnitype: " + furniType);
 	        		
 	        		//build that type of furni
-	        		houseHash.get(hashKey).getHotspots()[j].setBuiltFurniture(new Furniture(furniType));
+	        		houseHash.get(hashKey).getHotspots()[j].setBuiltFurniture(new Furniture(furniHash.get(furniIDHash.get(furniID))));
 	        	}
 	            
 	        }
@@ -2390,7 +2398,6 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
         loadingHouse = false;
         roomsToLoad = 0;
         loadAllRooms = false;
-
     }
 	
 	/**
@@ -3413,6 +3420,8 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
     LinkedHashMap<Object, Room> initRoomHash(LinkedHashMap<Object, Room> hash,
 			Utilities util){
 	
+    	int numberOfRooms = 25;
+    	
 		hash.put("EmptyFloor1", new Room(
 			/*Type*/ "EmptyFloor1",
 			/*labelText*/ "",
@@ -3487,7 +3496,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 			},
 			/*roomImageURL*/ "1Garden",
 			/*ID*/ "04"));
-		loadingLabel.setText("Loading . . . Creating Rooms 5/25");
+		loadingLabel.setText("Loading . . . Creating Rooms 5/"+numberOfRooms);
 		hash.put("Parlour", new Room(
 			/*Type*/ "Parlour",
 			/*labelText*/ "Parlour",
@@ -3605,7 +3614,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 			},
 			/*roomImageURL*/ "20Bedroom",
 			/*ID*/ "09"));
-		loadingLabel.setText("Loading . . . Creating Rooms 10/25");
+		loadingLabel.setText("Loading . . . Creating Rooms 10/"+numberOfRooms);
 		hash.put("Skill Hall", new Room(
 			/*Type*/ "Skill Hall",
 			/*labelText*/ "Skill Hall",
@@ -3671,7 +3680,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 			},
 			/*roomImageURL*/ "40Study",
 			/*ID*/ "14"));
-		loadingLabel.setText("Loading . . . Creating Rooms 15/25");
+		loadingLabel.setText("Loading . . . Creating Rooms 15/"+numberOfRooms);
 		hash.put("Costume Room", new Room(
 			/*Type*/ "Costume Room",
 			/*labelText*/ "<html>Costume<br />Room</html>",
@@ -3737,7 +3746,7 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 			},
 			/*roomImageURL*/ "60ThroneRoom",
 			/*ID*/ "19"));
-		loadingLabel.setText("Loading . . . Creating Rooms 20/25");
+		loadingLabel.setText("Loading . . . Creating Rooms 20/"+numberOfRooms);
 		hash.put("Oubliette", new Room(
 			/*Type*/ "Oubliette",
 			/*labelText*/ "Oubliette",
@@ -3812,165 +3821,1180 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
      */
     LinkedHashMap<Object, Hotspot> initHotspotHash(LinkedHashMap<Object, Hotspot> hash){
     	
-		hash.put("Centrepiece", new Hotspot("Centrepiece",
+    	hash.put("Centrepiece", new Hotspot("Centrepiece",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Exit Portal"),
-					new Furniture("Decorative Rock"),
-					new Furniture("Pond"),
-					new Furniture("Imp Statue"),
-					new Furniture("Dungeon Entrance"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Exit Portal")),
+					new Furniture(furniHash.get("Decorative Rock")),
+					new Furniture(furniHash.get("Pond")),
+					new Furniture(furniHash.get("Imp Statue")),
+					new Furniture(furniHash.get("Dungeon Entrance")),
 				}));
 			hash.put("Tree", new Hotspot("Tree",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Tree"),
-					new Furniture("Nice Tree"),
-					new Furniture("Oak Tree"),
-					new Furniture("Willow Tree"),
-					new Furniture("Maple Tree"),
-					new Furniture("Yew Tree"),
-					new Furniture("Magic Tree"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Tree")),
+					new Furniture(furniHash.get("Nice Tree")),
+					new Furniture(furniHash.get("Oak Tree")),
+					new Furniture(furniHash.get("Willow Tree")),
+					new Furniture(furniHash.get("Maple Tree")),
+					new Furniture(furniHash.get("Yew Tree")),
+					new Furniture(furniHash.get("Magic Tree")),
 				}));
 			hash.put("Big Tree", new Hotspot("Big Tree",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Tree"),
-					new Furniture("Nice Tree"),
-					new Furniture("Oak Tree"),
-					new Furniture("Willow Tree"),
-					new Furniture("Maple Tree"),
-					new Furniture("Yew Tree"),
-					new Furniture("Magic Tree"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Tree")),
+					new Furniture(furniHash.get("Nice Tree")),
+					new Furniture(furniHash.get("Oak Tree")),
+					new Furniture(furniHash.get("Willow Tree")),
+					new Furniture(furniHash.get("Maple Tree")),
+					new Furniture(furniHash.get("Yew Tree")),
+					new Furniture(furniHash.get("Magic Tree")),
 				}));
 			hash.put("Small Plant 1", new Hotspot("Small Plant 1",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Plant"),
-					new Furniture("Small Fern"),
-					new Furniture("Fern"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Plant")),
+					new Furniture(furniHash.get("Small Fern")),
+					new Furniture(furniHash.get("Fern")),
 				}));
 			hash.put("Small Plant 2", new Hotspot("Small Plant 2",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Dock Leaf"),
-					new Furniture("Thistle"),
-					new Furniture("Reeds"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Dock Leaf")),
+					new Furniture(furniHash.get("Thistle")),
+					new Furniture(furniHash.get("Reeds")),
 				}));
 			hash.put("Big Plant 1", new Hotspot("Big Plant 1",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Fern "), //space stops it getting confused with the other Fern
-					new Furniture("Bush"),
-					new Furniture("Tall Plant"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Fern ")), //space stops it getting confused with the other Fern
+					new Furniture(furniHash.get("Bush")),
+					new Furniture(furniHash.get("Tall Plant")),
 				}));
 			hash.put("Big Plant 2", new Hotspot("Big Plant 2",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Short Plant"),
-					new Furniture("Large Leaf Bush"),
-					new Furniture("Huge Plant"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Short Plant")),
+					new Furniture(furniHash.get("Large Leaf Bush")),
+					new Furniture(furniHash.get("Huge Plant")),
 				}));
 			hash.put("Chairs", new Hotspot("Chairs",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Crude Wooden Chair"),
-					new Furniture("Wooden Chair"),
-					new Furniture("Rocking Chair"),
-					new Furniture("Oak Chair"),
-					new Furniture("Oak Armchair"),
-					new Furniture("Teak Armchair"),
-					new Furniture("Mahogany Armchair"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Crude Wooden Chair")),
+					new Furniture(furniHash.get("Wooden Chair")),
+					new Furniture(furniHash.get("Rocking Chair")),
+					new Furniture(furniHash.get("Oak Chair")),
+					new Furniture(furniHash.get("Oak Armchair")),
+					new Furniture(furniHash.get("Teak Armchair")),
+					new Furniture(furniHash.get("Mahogany Armchair")),
 				}));
 			hash.put("Rugs", new Hotspot("Rugs",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Brown Rug"),
-					new Furniture("Rug"),
-					new Furniture("Opulent Rug"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Brown Rug")),
+					new Furniture(furniHash.get("Rug")),
+					new Furniture(furniHash.get("Opulent Rug")),
 				}));
 			hash.put("Fireplace", new Hotspot("Fireplace",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Clay Fireplace"),
-					new Furniture("Stone Fireplace"),
-					new Furniture("Marble Fireplace"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Clay Fireplace")),
+					new Furniture(furniHash.get("Stone Fireplace")),
+					new Furniture(furniHash.get("Marble Fireplace")),
 				}));
 			hash.put("Curtains", new Hotspot("Curtains",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Torn Curtains"),
-					new Furniture("Curtains"),
-					new Furniture("Opulent Curtains"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Torn Curtains")),
+					new Furniture(furniHash.get("Curtains")),
+					new Furniture(furniHash.get("Opulent Curtains")),
 				}));
 			hash.put("Bookcases", new Hotspot("Bookcases",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Wooden Bookcase"),
-					new Furniture("Oak Bookcase"),
-					new Furniture("Mahogany Bookcase"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Wooden Bookcase")),
+					new Furniture(furniHash.get("Oak Bookcase")),
+					new Furniture(furniHash.get("Mahogany Bookcase")),
 				}));
 			hash.put("Kitchen Table", new Hotspot("Kitchen Table",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Wood Table"),
-					new Furniture("Oak Table"),
-					new Furniture("Teak Table"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Wood Table")),
+					new Furniture(furniHash.get("Oak Table")),
+					new Furniture(furniHash.get("Teak Table")),
 				}));
 			hash.put("Larder", new Hotspot("Larder",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Wooden Larder"),
-					new Furniture("Oak Larder"),
-					new Furniture("Teak Larder"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Wooden Larder")),
+					new Furniture(furniHash.get("Oak Larder")),
+					new Furniture(furniHash.get("Teak Larder")),
 				}));
 			hash.put("Sink", new Hotspot("Sink",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Pump and Drain"),
-					new Furniture("Pump and Tub"),
-					new Furniture("Sink"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Pump and Drain")),
+					new Furniture(furniHash.get("Pump and Tub")),
+					new Furniture(furniHash.get("Sink")),
 				}));
 			hash.put("Shelf", new Hotspot("Shelf",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Wooden Shelves 1"),
-					new Furniture("Wooden Shelves 2"),
-					new Furniture("Wooden Shelves 3"),
-					new Furniture("Oak Shelves 1"),
-					new Furniture("Oak Shelves 2"),
-					new Furniture("Teak Shelves 1"),
-					new Furniture("Teak Shelves 2"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Wooden Shelves 1")),
+					new Furniture(furniHash.get("Wooden Shelves 2")),
+					new Furniture(furniHash.get("Wooden Shelves 3")),
+					new Furniture(furniHash.get("Oak Shelves 1")),
+					new Furniture(furniHash.get("Oak Shelves 2")),
+					new Furniture(furniHash.get("Teak Shelves 1")),
+					new Furniture(furniHash.get("Teak Shelves 2")),
 				}));
 			hash.put("Stove", new Hotspot("Stove",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Firepit"),
-					new Furniture("Firepit with Hook"),
-					new Furniture("Firepit with Pot"),
-					new Furniture("Small Oven"),
-					new Furniture("Large Oven"),
-					new Furniture("Steel Range"),
-					new Furniture("Fancy Range"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Firepit")),
+					new Furniture(furniHash.get("Firepit with Hook")),
+					new Furniture(furniHash.get("Firepit with Pot")),
+					new Furniture(furniHash.get("Small Oven")),
+					new Furniture(furniHash.get("Large Oven")),
+					new Furniture(furniHash.get("Steel Range")),
+					new Furniture(furniHash.get("Fancy Range")),
 				}));
 			hash.put("Barrel", new Hotspot("Barrel",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Beer Barrel"),
-					new Furniture("Cider Barrel"),
-					new Furniture("Asgarnian Ale"),
-					new Furniture("Greenmans Ale"),
-					new Furniture("Dragon Bitter"),
-					new Furniture("Chefs Delight"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Beer Barrel")),
+					new Furniture(furniHash.get("Cider Barrel")),
+					new Furniture(furniHash.get("Asgarnian Ale")),
+					new Furniture(furniHash.get("Greenmans Ale")),
+					new Furniture(furniHash.get("Dragon Bitter")),
+					new Furniture(furniHash.get("Chefs Delight")),
 				}));
 			hash.put("Cat Basket", new Hotspot("Cat Basket",
 				new Furniture[] {
-					new Furniture("None"),
-					new Furniture("Cat Blanket"),
-					new Furniture("Cat Basket"),
-					new Furniture("Cushioned Basket"),
+					new Furniture(furniHash.get("None")),
+					new Furniture(furniHash.get("Cat Blanket")),
+					new Furniture(furniHash.get("Cat Basket")),
+					new Furniture(furniHash.get("Cushioned Basket")),
 				}));
     	
     	return hash;
     }
+
+    /**
+     * Initialises the Furniture ID Hash with the various furniture IDs so they can be
+     * accessed when loading from a Sharing Code
+     */
+    LinkedHashMap<Object, String> initFurniIDHash(LinkedHashMap<Object, String> hash){
+    	
+    	hash.put("00", "None");
+    	hash.put("01", "Exit Portal");
+    	hash.put("02", "Decorative Rock");
+    	hash.put("03", "Pond");
+    	hash.put("04", "Imp Statue");
+    	hash.put("05", "Dungeon Entrance");
+    	hash.put("06", "Tree");
+    	hash.put("07", "Nice Tree");
+    	hash.put("08", "Oak Tree");
+    	hash.put("09", "Willow Tree");
+    	hash.put("10", "Maple Tree");
+    	hash.put("11", "Yew Tree");
+    	hash.put("12", "Magic Tree");
+    	hash.put("13", "Plant");
+    	hash.put("14", "Small Fern");
+    	hash.put("15", "Fern");
+    	hash.put("16", "Dock Leaf");
+    	hash.put("17", "Thistle");
+    	hash.put("18", "Reeds");
+    	hash.put("19", "Fern ");
+    	hash.put("20", "Bush");
+    	hash.put("21", "Tall Plant");
+    	hash.put("22", "Short Plant");
+    	hash.put("23", "Large Leaf Bush");
+    	hash.put("24", "Huge Plant");
+    	hash.put("25", "Crude Wooden Chair");
+    	hash.put("26", "Wooden Chair");
+    	hash.put("27", "Rocking Chair");
+    	hash.put("28", "Oak Chair");
+    	hash.put("29", "Oak Armchair");
+    	hash.put("30", "Teak Armchair");
+    	hash.put("31", "Mahogany Armchair");
+    	hash.put("32", "Brown Rug");
+    	hash.put("33", "Rug");
+    	hash.put("34", "Opulent Rug");
+    	hash.put("35", "Clay Fireplace");
+    	hash.put("36", "Stone Fireplace");
+    	hash.put("37", "Marble Fireplace");
+    	hash.put("38", "Torn Curtains");
+    	hash.put("39", "Curtains");
+    	hash.put("40", "Opulent Curtains");
+    	hash.put("41", "Wooden Bookcase");
+    	hash.put("42", "Oak Bookcase");
+    	hash.put("43", "Mahogany Bookcase");
+    	hash.put("44", "Wood Table");
+    	hash.put("45", "Oak Table");
+    	hash.put("46", "Teak Table");
+    	hash.put("47", "Wooden Larder");
+    	hash.put("48", "Oak Larder");
+    	hash.put("49", "Teak Larder");
+    	hash.put("50", "Pump and Drain");
+    	hash.put("51", "Pump and Tub");
+    	hash.put("52", "Sink");
+    	hash.put("53", "Wooden Shelves 1");
+    	hash.put("54", "Wooden Shelves 2");
+    	hash.put("55", "Wooden Shelves 3");
+    	hash.put("56", "Oak Shalves 1");
+    	hash.put("57", "Oak Shalves 2");
+    	hash.put("58", "Teak Shelves 1");
+    	hash.put("59", "Teak Shelves 2");
+    	hash.put("60", "Firepit");
+    	hash.put("61", "Firepit with Hook");
+    	hash.put("62", "Firepit with Pot");
+    	hash.put("63", "Small Oven");
+    	hash.put("64", "Large Oven");
+    	hash.put("65", "Steel Range");
+    	hash.put("66", "Fancy Range");
+    	hash.put("67", "Beer Barrel");
+    	hash.put("68", "Cider Barrel");
+    	hash.put("69", "Asgarnian Ale");
+    	hash.put("70", "Greenmans Ale");
+    	hash.put("71", "Dragon Bitter");
+    	hash.put("72", "Chefs Delight");
+    	hash.put("73", "Cat Blanket");
+    	hash.put("74", "Cat Basket");
+    	hash.put("75", "Cushioned Basket");
+    	
+    	
+    	return hash;
+    }
+    /**
+     * Initialises the Furniture Hash with the different types of furniture
+     */
+    LinkedHashMap<Object, Furniture> initFurniHash(LinkedHashMap<Object, Furniture> hash){
+		
+    	hash.put("None", new Furniture(/*Type*/ "None",
+    			/*furniURL*/ "none/empty",
+    			/*Materials*/ new Materials[0],
+    			/*materialNumbers*/ new int[0],
+    			/*Level*/ 1,
+    			/*ID*/ "00"));
+    	hash.put("Exit Portal", new Furniture(/*Type*/ "Exit Portal",
+    			/*furniURL*/ "centrepiece/exit_portal",
+    			/*Materials*/ new Materials[]{
+    				new Materials(materialHash.get("Iron Bar")),
+    			},
+    			/*materialNumbers*/ new int[]{ 10},
+    			/*Level*/ 1,
+    			/*ID*/ "01"));
+    	hash.put("Decorative Rock", new Furniture(/*Type*/ "Decorative Rock",
+    			/*furniURL*/ "centrepiece/decorative_rock",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Limestone Brick")),
+    			},
+    			/*materialNumbers*/ new int[]{ 5},
+    			/*Level*/ 5,
+    			/*ID*/ "02"));
+    	hash.put("Pond", new Furniture(/*Type*/ "Pond",
+    			/*furniURL*/ "centrepiece/pond",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Soft Clay")),
+    			},
+    			/*materialNumbers*/ new int[]{ 10},
+    			/*Level*/ 10,
+    			/*ID*/ "03"));
+    	hash.put("Imp Statue", new Furniture(/*Type*/ "Imp Statue",
+    			/*furniURL*/ "centrepiece/imp_statue",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Limestone Brick")),
+    					new Materials(materialHash.get("Soft Clay")),
+    			},
+    			/*materialNumbers*/ new int[]{ 5, 5},
+    			/*Level*/ 15,
+    			/*ID*/ "04"));
+    	hash.put("Dungeon Entrance", new Furniture(/*Type*/ "Dungeon Entrance",
+    			/*furniURL*/ "centrepiece/dungeon_entrance",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Marble Block")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1},
+    			/*Level*/ 70,
+    			/*ID*/ "05"));
+    	hash.put("Tree", new Furniture(/*Type*/ "Tree",
+    			/*furniURL*/ "tree/tree",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Dead Tree")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 5,
+    			/*ID*/ "06"));
+    	hash.put("Nice Tree", new Furniture(/*Type*/ "Nice Tree",
+    			/*furniURL*/ "tree/nice_tree",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Nice Tree")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 10,
+    			/*ID*/ "07"));
+    	hash.put("Oak Tree", new Furniture(/*Type*/ "Oak Tree",
+    			/*furniURL*/ "tree/oak_tree",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Oak Tree")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 15,
+    			/*ID*/ "08"));
+    	hash.put("Willow Tree", new Furniture(/*Type*/ "Willow Tree",
+    			/*furniURL*/ "tree/willow_tree",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Willow Tree")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 30,
+    			/*ID*/ "09"));
+    	hash.put("Maple Tree", new Furniture(/*Type*/ "Maple Tree",
+    			/*furniURL*/ "tree/maple_tree",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Maple Tree")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 45,
+    			/*ID*/ "10"));
+    	hash.put("Yew Tree", new Furniture(/*Type*/ "Yew Tree",
+    			/*furniURL*/ "tree/yew_tree",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Yew Tree")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 60,
+    			/*ID*/ "11"));
+    	hash.put("Magic Tree", new Furniture(/*Type*/ "Magic Tree",
+    			/*furniURL*/ "tree/magic_tree",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Magic Tree")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 75,
+    			/*ID*/ "12"));
+    	hash.put("Plant", new Furniture(/*Type*/ "Plant",
+    			/*furniURL*/ "smallPlant1/plant",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Plant 1")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 31,
+    			/*ID*/ "13"));
+    	hash.put("Small Fern", new Furniture(/*Type*/ "Small Fern",
+    			/*furniURL*/ "smallPlant1/small_fern",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Plant 2")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 6,
+    			/*ID*/ "14"));
+    	hash.put("Fern", new Furniture(/*Type*/ "Fern",
+    			/*furniURL*/ "smallPlant1/fern",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Plant 3")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 12,
+    			/*ID*/ "15"));
+    	hash.put("Dock Leaf", new Furniture(/*Type*/ "Dock Leaf",
+    			/*furniURL*/ "smallPlant2/dock_leaf",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Plant 1")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 1,
+    			/*ID*/ "16"));
+    	hash.put("Thistle", new Furniture(/*Type*/ "Thistle",
+    			/*furniURL*/ "smallPlant2/thistle",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Plant 2")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 6,
+    			/*ID*/ "17"));
+    	hash.put("Reeds", new Furniture(/*Type*/ "Reeds",
+    			/*furniURL*/ "smallPlant2/reeds",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Plant 3")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 12,
+    			/*ID*/ "18"));
+    	hash.put("Fern ", new Furniture(/*Type*/ "Fern",
+    			/*furniURL*/ "bigPlant1/fern",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Plant 1")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 1,
+    			/*ID*/ "19"));
+    	hash.put("Bush", new Furniture(/*Type*/ "Bush",
+    			/*furniURL*/ "bigPlant1/bush",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Plant 2")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 6,
+    			/*ID*/ "20"));
+    	hash.put("Tall Plant", new Furniture(/*Type*/ "Tall Plant",
+    			/*furniURL*/ "bigPlant1/tall_plant",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Plant 3")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 12,
+    			/*ID*/ "21"));
+    	hash.put("Short Plant", new Furniture(/*Type*/ "Short Plant",
+    			/*furniURL*/ "bigPlant2/short_plant",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Plant 1")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 1,
+    			/*ID*/ "22"));
+    	hash.put("Large Leaf Bush", new Furniture(/*Type*/ "Large Leaf Bush",
+    			/*furniURL*/ "bigPlant2/large_leaf_bush",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Plant 2")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 6,
+    			/*ID*/ "23"));
+    	hash.put("Huge Plant", new Furniture(/*Type*/ "Huge Plant",
+    			/*furniURL*/ "bigPlant2/huge_plant",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Bagged Plant 3")),
+    					new Materials(materialHash.get("Watering Can")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 1},
+    			/*Level*/ 12,
+    			/*ID*/ "24"));
+    	hash.put("Crude Wooden Chair", new Furniture(/*Type*/ "Crude Wooden Chair",
+    			/*furniURL*/ "chairs/crude_wooden_chair",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Plank")),
+    					new Materials(materialHash.get("Nails")),
+    			},
+    			/*materialNumbers*/ new int[]{ 2, 2},
+    			/*Level*/ 1,
+    			/*ID*/ "25"));
+    	hash.put("Wooden Chair", new Furniture(/*Type*/ "Wooden Chair",
+    			/*furniURL*/ "chairs/wooden_chair",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Plank")),
+    					new Materials(materialHash.get("Nails")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 3},
+    			/*Level*/ 8,
+    			/*ID*/ "26"));
+    	hash.put("Rocking Chair", new Furniture(/*Type*/ "Rocking Chair",
+    			/*furniURL*/ "chairs/rocking_chair",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Plank")),
+    					new Materials(materialHash.get("Nails")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 3},
+    			/*Level*/ 14,
+    			/*ID*/ "27"));
+    	hash.put("Oak Chair", new Furniture(/*Type*/ "Oak Chair",
+    			/*furniURL*/ "chairs/oak_chair",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Oak Plank")),
+    			},
+    			/*materialNumbers*/ new int[]{ 2},
+    			/*Level*/ 19,
+    			/*ID*/ "28"));
+    	hash.put("Oak Armchair", new Furniture(/*Type*/ "Oak Armchair",
+    			/*furniURL*/ "chairs/oak_armchair",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Oak Plank")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3},
+    			/*Level*/ 26,
+    			/*ID*/ "29"));
+    	hash.put("Teak Armchair", new Furniture(/*Type*/ "Teak Armchair",
+    			/*furniURL*/ "chairs/teak_armchair",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Teak Plank")),
+    			},
+    			/*materialNumbers*/ new int[]{ 2},
+    			/*Level*/ 35,
+    			/*ID*/ "30"));
+    	hash.put("Mahogany Armchair", new Furniture(/*Type*/ "Mahogany Armchair",
+    			/*furniURL*/ "chairs/mahogany_armchair",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Mahogany Plank")),
+    			},
+    			/*materialNumbers*/ new int[]{ 2},
+    			/*Level*/ 50,
+    			/*ID*/ "31"));
+    	hash.put("Brown Rug", new Furniture(/*Type*/ "Brown Rug",
+    			/*furniURL*/ "rugs/brown_rug",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Cloth")),
+    			},
+    			/*materialNumbers*/ new int[]{ 2},
+    			/*Level*/ 2,
+    			/*ID*/ "32"));
+    	hash.put("Rug", new Furniture(/*Type*/ "Rug",
+    			/*furniURL*/ "rugs/rug",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Cloth")),
+    			},
+    			/*materialNumbers*/ new int[]{ 4},
+    			/*Level*/ 13,
+    			/*ID*/ "33"));
+    	hash.put("Opulent Rug", new Furniture(/*Type*/ "Opulent Rug",
+    			/*furniURL*/ "rugs/opulent_rug",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Cloth")),
+    					new Materials(materialHash.get("Gold Leaf")),
+    			},
+    			/*materialNumbers*/ new int[]{ 4, 1},
+    			/*Level*/ 65,
+    			/*ID*/ "34"));
+    	hash.put("Clay Fireplace", new Furniture(/*Type*/ "Clay Fireplace",
+    			/*furniURL*/ "fireplace/clay_fireplace",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Soft Clay")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3},
+    			/*Level*/ 3,
+    			/*ID*/ "35"));
+    	hash.put("Stone Fireplace", new Furniture(/*Type*/ "Stone Fireplace",
+    			/*furniURL*/ "fireplace/stone_fireplace",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Limestone Brick")),
+    			},
+    			/*materialNumbers*/ new int[]{ 2},
+    			/*Level*/ 33,
+    			/*ID*/ "36"));
+    	hash.put("Marble Fireplace", new Furniture(/*Type*/ "Marble Fireplace",
+    			/*furniURL*/ "fireplace/marble_fireplace",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Marble Block")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1},
+    			/*Level*/ 63,
+    			/*ID*/ "37"));
+    	hash.put("Torn Curtains", new Furniture(/*Type*/ "Torn Curtains",
+    			/*furniURL*/ "curtains/torn_curtains",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Plank")),
+    					new Materials(materialHash.get("Cloth")),
+    					new Materials(materialHash.get("Nails")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 3, 3},
+    			/*Level*/ 2,
+    			/*ID*/ "38"));
+    	hash.put("Curtains", new Furniture(/*Type*/ "Curtains",
+    			/*furniURL*/ "curtains/curtains",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Oak Plank")),
+    					new Materials(materialHash.get("Cloth")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 3},
+    			/*Level*/ 18,
+    			/*ID*/ "39"));
+    	hash.put("Opulent Curtains", new Furniture(/*Type*/ "Opulent Curtains",
+    			/*furniURL*/ "curtains/opulent_curtains",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Teak Plank")),
+    					new Materials(materialHash.get("Cloth")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 3},
+    			/*Level*/ 40,
+    			/*ID*/ "40"));
+    	hash.put("Wooden Bookcase", new Furniture(/*Type*/ "Wooden Bookcase",
+    			/*furniURL*/ "bookcases/wooden_bookcase",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Plank")),
+    					new Materials(materialHash.get("Nails")),
+    			},
+    			/*materialNumbers*/ new int[]{ 4, 4},
+    			/*Level*/ 4,
+    			/*ID*/ "41"));
+    	hash.put("Oak Bookcase", new Furniture(/*Type*/ "Oak Bookcase",
+    			/*furniURL*/ "bookcases/oak_bookcase",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Oak Plank")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3},
+    			/*Level*/ 29,
+    			/*ID*/ "42"));
+    	hash.put("Mahogany Bookcase", new Furniture(/*Type*/ "Mahogany Bookcase",
+    			/*furniURL*/ "bookcases/mahogany_bookcase",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Mahogany Plank")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3},
+    			/*Level*/ 40,
+    			/*ID*/ "43"));
+    	hash.put("Wood Table", new Furniture(/*Type*/ "Wood Table",
+    			/*furniURL*/ "kitchenTable/wood_table",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Plank")),
+    					new Materials(materialHash.get("Nails")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 3},
+    			/*Level*/ 12,
+    			/*ID*/ "44"));
+    	hash.put("Oak Table", new Furniture(/*Type*/ "Oak Table",
+    			/*furniURL*/ "kitchenTable/oak_table",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Oak Plank")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3},
+    			/*Level*/ 32,
+    			/*ID*/ "45"));
+    	hash.put("Teak Table", new Furniture(/*Type*/ "Teak Table",
+    			/*furniURL*/ "kitchenTable/teak_table",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Teak Plank")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3},
+    			/*Level*/ 52,
+    			/*ID*/ "46"));
+    	hash.put("Wooden Larder", new Furniture(/*Type*/ "Wooden Larder",
+    			/*furniURL*/ "larder/wooden_larder",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Plank")),
+    					new Materials(materialHash.get("Nails")),
+    			},
+    			/*materialNumbers*/ new int[]{ 8, 8},
+    			/*Level*/ 9,
+    			/*ID*/ "47"));
+    	hash.put("Oak Larder", new Furniture(/*Type*/ "Oak Larder",
+    			/*furniURL*/ "larder/oak_larder",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Oak Plank")),
+    			},
+    			/*materialNumbers*/ new int[]{ 8},
+    			/*Level*/ 33,
+    			/*ID*/ "48"));
+    	hash.put("Teak Larder", new Furniture(/*Type*/ "Teak Larder",
+    			/*furniURL*/ "larder/teak_larder",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Teak Plank")),
+    					new Materials(materialHash.get("Cloth")),
+    			},
+    			/*materialNumbers*/ new int[]{ 8, 2},
+    			/*Level*/ 43,
+    			/*ID*/ "49"));
+    	hash.put("Pump and Drain", new Furniture(/*Type*/ "Pump and Drain",
+    			/*furniURL*/ "sink/pump_and_drain",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Steel Bar")),
+    			},
+    			/*materialNumbers*/ new int[]{ 5},
+    			/*Level*/ 7,
+    			/*ID*/ "50"));
+    	hash.put("Pump and Tub", new Furniture(/*Type*/ "Pump and Tub",
+    			/*furniURL*/ "sink/pump_and_tub",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Steel Bar")),
+    			},
+    			/*materialNumbers*/ new int[]{ 10},
+    			/*Level*/ 27,
+    			/*ID*/ "51"));
+    	hash.put("Sink", new Furniture(/*Type*/ "Sink",
+    			/*furniURL*/ "sink/sink",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Steel Bar")),
+    			},
+    			/*materialNumbers*/ new int[]{ 15},
+    			/*Level*/ 47,
+    			/*ID*/ "52"));
+    	hash.put("Wooden Shelves 1", new Furniture(/*Type*/ "Wooden Shelves 1",
+    			/*furniURL*/ "shelves/wooden_shelves_1",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Plank")),
+    					new Materials(materialHash.get("Nails")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 3},
+    			/*Level*/ 6,
+    			/*ID*/ "53"));
+    	hash.put("Wooden Shelves 2", new Furniture(/*Type*/ "Wooden Shelves 2",
+    			/*furniURL*/ "shelves/wooden_shelves_2",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Plank")),
+    					new Materials(materialHash.get("Nails")),
+    					new Materials(materialHash.get("Soft Clay")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 3, 6},
+    			/*Level*/ 12,
+    			/*ID*/ "54"));
+    	hash.put("Wooden Shelves 3", new Furniture(/*Type*/ "Wooden Shelves 3",
+    			/*furniURL*/ "shelves/wooden_shelves_3",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Plank")),
+    					new Materials(materialHash.get("Nails")),
+    					new Materials(materialHash.get("Soft Clay")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 3, 6},
+    			/*Level*/ 23,
+    			/*ID*/ "55"));
+    	hash.put("Oak Shelves 1", new Furniture(/*Type*/ "Oak Shelves 1",
+    			/*furniURL*/ "shelves/oak_shelves_1",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Oak Plank")),
+    					new Materials(materialHash.get("Soft Clay")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 6},
+    			/*Level*/ 34,
+    			/*ID*/ "56"));
+    	hash.put("Oak Shelves 2", new Furniture(/*Type*/ "Oak Shelves 2",
+    			/*furniURL*/ "shelves/oak_shelves_2",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Oak Plank")),
+    					new Materials(materialHash.get("Soft Clay")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 6},
+    			/*Level*/ 45,
+    			/*ID*/ "57"));
+    	hash.put("Teak Shelves 1", new Furniture(/*Type*/ "Teak Shelves 1",
+    			/*furniURL*/ "shelves/teak_shelves_1",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Teak Plank")),
+    					new Materials(materialHash.get("Soft Clay")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 6},
+    			/*Level*/ 56,
+    			/*ID*/ "58"));
+    	hash.put("Teak Shelves 2", new Furniture(/*Type*/ "Teak Shelves 2",
+    			/*furniURL*/ "shelves/teak_shelves_2",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Teak Plank")),
+    					new Materials(materialHash.get("Soft Clay")),
+    					new Materials(materialHash.get("Gold Leaf")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 6, 2},
+    			/*Level*/ 67,
+    			/*ID*/ "59"));
+    	hash.put("Firepit", new Furniture(/*Type*/ "Firepit",
+    			/*furniURL*/ "stove/firepit",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Steel Bar")),
+    					new Materials(materialHash.get("Soft Clay")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1, 2},
+    			/*Level*/ 5,
+    			/*ID*/ "60"));
+    	hash.put("Firepit with Hook", new Furniture(/*Type*/ "Firepit with Hook",
+    			/*furniURL*/ "stove/firepit_with_hook",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Steel Bar")),
+    					new Materials(materialHash.get("Soft Clay")),
+    			},
+    			/*materialNumbers*/ new int[]{ 2, 2},
+    			/*Level*/ 11,
+    			/*ID*/ "61"));
+    	hash.put("Firepit with Pot", new Furniture(/*Type*/ "Firepit with Pot",
+    			/*furniURL*/ "stove/firepit_with_pot",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Steel Bar")),
+    					new Materials(materialHash.get("Soft Clay")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 2},
+    			/*Level*/ 17,
+    			/*ID*/ "62"));
+    	hash.put("Small Oven", new Furniture(/*Type*/ "Small Oven",
+    		/*furniURL*/ "stove/small_oven",
+    		/*Materials*/ new Materials[]{
+    				new Materials(materialHash.get("Steel Bar")),
+    		},
+    		/*materialNumbers*/ new int[]{ 4},
+    		/*Level*/ 24,
+    		/*ID*/ "63"));
+    	hash.put("Large Oven", new Furniture(/*Type*/ "Large Oven",
+    			/*furniURL*/ "stove/large_oven",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Steel Bar")),
+    			},
+    			/*materialNumbers*/ new int[]{ 5},
+    			/*Level*/ 29,
+    			/*ID*/ "64"));
+    	hash.put("Steel Range", new Furniture(/*Type*/ "Steel Range",
+    			/*furniURL*/ "stove/steel_range",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Steel Bar")),
+    			},
+    			/*materialNumbers*/ new int[]{ 6},
+    			/*Level*/ 34,
+    			/*ID*/ "65"));
+    	hash.put("Fancy Range", new Furniture(/*Type*/ "Fancy Range",
+    			/*furniURL*/ "stove/fancy_range",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Steel Bar")),
+    			},
+    			/*materialNumbers*/ new int[]{ 8},
+    			/*Level*/ 42,
+    			/*ID*/ "66"));
+    	hash.put("Beer Barrel", new Furniture(/*Type*/ "Beer Barrel",
+    			/*furniURL*/ "barrel/beer_barrel",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Plank")),
+    					new Materials(materialHash.get("Nails")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 3},
+    			/*Level*/ 7,
+    			/*ID*/ "67"));
+    	hash.put("Cider Barrel", new Furniture(/*Type*/ "Cider Barrel",
+    			/*furniURL*/ "barrel/cider_barrel",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Plank")),
+    					new Materials(materialHash.get("Nails")),
+    					new Materials(materialHash.get("Cider")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 3, 8},
+    			/*Level*/ 12,
+    			/*ID*/ "68"));
+    	hash.put("Asgarnian Ale", new Furniture(/*Type*/ "Asgarnian Ale",
+    			/*furniURL*/ "barrel/asgarnian_ale",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Oak Plank")),
+    					new Materials(materialHash.get("Asgarnian Ale")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 8},
+    			/*Level*/ 18,
+    			/*ID*/ "69"));
+    	hash.put("Greenmans Ale", new Furniture(/*Type*/ "Greenmans Ale",
+    			/*furniURL*/ "barrel/greenmans_ale",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Oak Plank")),
+    					new Materials(materialHash.get("Greenmans Ale")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 8},
+    			/*Level*/ 26,
+    			/*ID*/ "70"));
+    	hash.put("Dragon Bitter", new Furniture(/*Type*/ "Dragon Bitter",
+    			/*furniURL*/ "barrel/dragon_bitter",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Oak Plank")),
+    					new Materials(materialHash.get("Dragon Bitter")),
+    					new Materials(materialHash.get("Steel Bar")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 8, 2},
+    			/*Level*/ 36,
+    			/*ID*/ "71"));
+    	hash.put("Chefs Delight", new Furniture(/*Type*/ "Chefs Delight",
+    			/*furniURL*/ "barrel/chefs_delight",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Oak Plank")),
+    					new Materials(materialHash.get("Chefs Delight")),
+    					new Materials(materialHash.get("Steel Bar")),
+    			},
+    			/*materialNumbers*/ new int[]{ 3, 8, 2},
+    			/*Level*/ 48,
+    			/*ID*/ "72"));
+    	hash.put("Cat Blanket", new Furniture(/*Type*/ "Cat Blanket",
+    			/*furniURL*/ "catBasket/cat_blanket",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Cloth")),
+    			},
+    			/*materialNumbers*/ new int[]{ 1},
+    			/*Level*/ 5,
+    			/*ID*/ "73"));
+    	hash.put("Cat Basket", new Furniture(/*Type*/ "Cat Basket",
+    			/*furniURL*/ "catBasket/cat_basket",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Plank")),
+    					new Materials(materialHash.get("Nails")),
+    			},
+    			/*materialNumbers*/ new int[]{ 2, 2},
+    			/*Level*/ 19,
+    			/*ID*/ "74"));
+    	hash.put("Cushioned Basket", new Furniture(/*Type*/ "Cushioned Basket",
+    			/*furniURL*/ "catBasket/cushioned_basket",
+    			/*Materials*/ new Materials[]{
+    					new Materials(materialHash.get("Plank")),
+    					new Materials(materialHash.get("Nails")),
+    					new Materials(materialHash.get("Wool")),
+    			},
+    			/*materialNumbers*/ new int[]{ 2, 2, 2},
+    			/*Level*/ 33,
+    			/*ID*/ "75"));
+    	/*hash.put("", new Furniture());
+    	hash.put("", new Furniture());
+    	hash.put("", new Furniture());
+    	hash.put("", new Furniture());
+    	hash.put("", new Furniture());*/
+    	
+    	
+    	
+    	return hash;
+    }
+    /**
+     * Initialises the Material ID Hash with the various material IDs (not GEIDs) so they can be
+     * accessed from various places
+     */
+    LinkedHashMap<Object, String> initMaterialDHash(LinkedHashMap<Object, String> hash){
+    	
+    	hash.put("0", "Iron Bar");
+    	hash.put("1", "Steel Bar");
+    	hash.put("2", "Cider");
+    	hash.put("3", "Asgarnian Ale");
+    	hash.put("4", "Greenmans Ale");
+    	hash.put("5", "Dragon Bitter");
+    	hash.put("6", "Chefs Delight");
+    	hash.put("7", "Wool");
+    	hash.put("8", "Limestone Brick");
+    	hash.put("9", "Soft Clay");
+    	hash.put("10", "Marble Block");
+    	hash.put("11", "Plank");
+    	hash.put("12", "Oak Plank");
+    	hash.put("13", "Teak Plank");
+    	hash.put("14", "Mahogany Plank");
+    	hash.put("15", "Nails");
+    	hash.put("16", "Cloth");
+    	hash.put("17", "Gold Leaf");
+    	hash.put("18", "Bagged Dead Tree");
+    	hash.put("19", "Bagged Nice Tree");
+    	hash.put("20", "Bagged Oak Tree");
+    	hash.put("21", "Bagged Willow Tree");
+    	hash.put("22", "Bagged Maple Tree");
+    	hash.put("23", "Bagged Yew Tree");
+    	hash.put("24", "Bagged Magic Tree");
+    	hash.put("25", "Watering Can");
+    	hash.put("26", "Bagged Plant 1");
+    	hash.put("27", "Bagged Plant 2");
+    	hash.put("28", "Bagged Plant 3");
+    	
+    	return hash;
+    }
+    /**
+     * Initialises the Material Hash with the different types of material
+     */
+    LinkedHashMap<Object, Materials> initMaterialHash(LinkedHashMap<Object, Materials> hash){
+    	
+    	hash.put("Iron Bar", new Materials(/*Type*/ "Iron Bar",
+    			/*GEID*/ 2351,
+    			/*GEMidPrice*/ 250,
+    			/*shopPrice*/ 0,
+    			/*Experience*/ 10,
+    			/*imageURL*/ "iron_bar",
+    			/*ID*/ "0"));
+    	hash.put("Steel Bar", new Materials(/*Type*/ "Steel Bar",
+    			/*GEID*/ 2353,
+    			/*GEMidPrice*/ 720,
+    			/*shopPrice*/ 0,
+    			/*Experience*/ 20,
+    			/*imageURL*/ "steel_bar",
+    			/*ID*/ "1"));
+    	hash.put("Cider", new Materials(/*Type*/ "Cider",
+    			/*GEID*/ 5763,
+    			/*GEMidPrice*/ 200,
+    			/*shopPrice*/ 2,
+    			/*Experience*/ 4,
+    			/*imageURL*/ "cider",
+    			/*ID*/ "2"));
+    	hash.put("Asgarnian Ale", new Materials(/*Type*/ "Asgarnian Ale",
+    			/*GEID*/ 1905,
+    			/*GEMidPrice*/ 80,
+    			/*shopPrice*/ 2,
+    			/*Experience*/ 4,
+    			/*imageURL*/ "asgarnian_ale",
+    			/*ID*/ "3"));
+    	hash.put("Greenmans Ale", new Materials(/*Type*/ "Greenmans Ale",
+    			/*GEID*/ 1909,
+    			/*GEMidPrice*/ 200,
+    			/*shopPrice*/ 2,
+    			/*Experience*/ 4,
+    			/*imageURL*/ "greenmans_ale",
+    			/*ID*/ "4"));
+    	hash.put("Dragon Bitter", new Materials(/*Type*/ "Dragon Bitter",
+    			/*GEID*/ 1911,
+    			/*GEMidPrice*/ 450,
+    			/*shopPrice*/ 2,
+    			/*Experience*/ 4,
+    			/*imageURL*/ "dragon_bitter",
+    			/*ID*/ "5"));
+    	hash.put("Chefs Delight", new Materials(/*Type*/ "Chefs Delight",
+    			/*GEID*/ 5755,
+    			/*GEMidPrice*/ 3400,
+    			/*shopPrice*/ 0,
+    			/*Experience*/ 4,
+    			/*imageURL*/ "chefs_delight",
+    			/*ID*/ "6"));
+    	hash.put("Wool", new Materials(/*Type*/ "Wool",
+    			/*GEID*/ 1737,
+    			/*GEMidPrice*/ 140,
+    			/*shopPrice*/ 0,
+    			/*Experience*/ 0,
+    			/*imageURL*/ "wool",
+    			/*ID*/ "7"));
+    	hash.put("Limestone Brick", new Materials(/*Type*/ "Limestone Brick",
+    			/*GEID*/ 3420,
+    			/*GEMidPrice*/ 100,
+    			/*shopPrice*/ 21,
+    			/*Experience*/ 20,
+    			/*imageURL*/ "limestone_brick",
+    			/*ID*/ "8"));
+    	hash.put("Soft Clay", new Materials(/*Type*/ "Soft Clay",
+    			/*GEID*/ 1761,
+    			/*GEMidPrice*/ 170,
+    			/*shopPrice*/ 0,
+    			/*Experience*/ 10,
+    			/*imageURL*/ "soft_clay",
+    			/*ID*/ "9"));
+    	hash.put("Marble Block", new Materials(/*Type*/ "Marble Block",
+    			/*GEID*/ 8786,
+    			/*GEMidPrice*/ 324500,
+    			/*shopPrice*/ 325000,
+    			/*Experience*/ 500,
+    			/*imageURL*/ "marble_block",
+    			/*ID*/ "10"));
+    	hash.put("Plank", new Materials(/*Type*/ "Plank",
+    			/*GEID*/ 960,
+    			/*GEMidPrice*/ 200,
+    			/*shopPrice*/ 100,
+    			/*Experience*/ 30,
+    			/*imageURL*/ "plankt",
+    			/*ID*/ "11"));
+    	hash.put("Oak Plank", new Materials(/*Type*/ "Oak Plank",
+    			/*GEID*/ 8778,
+    			/*GEMidPrice*/ 470,
+    			/*shopPrice*/ 250,
+    			/*Experience*/ 60,
+    			/*imageURL*/ "oak_plank",
+    			/*ID*/ "12"));
+    	hash.put("Teak Plank", new Materials(/*Type*/ "Teak Plank",
+    			/*GEID*/ 8780,
+    			/*GEMidPrice*/ 800,
+    			/*shopPrice*/ 500,
+    			/*Experience*/ 90,
+    			/*imageURL*/ "teak_plank",
+    			/*ID*/ "13"));
+    	hash.put("Mahogany Plank", new Materials(/*Type*/ "Mahogany Plank",
+    			/*GEID*/ 8782,
+    			/*GEMidPrice*/ 1790,
+    			/*shopPrice*/ 1500,
+    			/*Experience*/ 120,
+    			/*imageURL*/ "mahogany_plank",
+    			/*ID*/ "14"));
+    	hash.put("Nails", new Materials(/*Type*/ "Nails",
+    			/*GEID*/ 1539,
+    			/*GEMidPrice*/ 25,
+    			/*shopPrice*/ 52,
+    			/*Experience*/ 3,
+    			/*imageURL*/ "steel_nails",
+    			/*ID*/ "15"));
+    	hash.put("Cloth", new Materials(/*Type*/ "Bolt of Cloth",
+    			/*GEID*/ 8790,
+    			/*GEMidPrice*/ 830,
+    			/*shopPrice*/ 650,
+    			/*Experience*/ 15,
+    			/*imageURL*/ "cloth",
+    			/*ID*/ "16"));
+    	hash.put("Gold Leaf", new Materials(/*Type*/ "Gold Leaf",
+    			/*GEID*/ 8784,
+    			/*GEMidPrice*/ 129900,
+    			/*shopPrice*/ 130000,
+    			/*Experience*/ 300,
+    			/*imageURL*/ "gold_leaf",
+    			/*ID*/ "17"));
+    	hash.put("Bagged Dead Tree", new Materials(/*Type*/ "Bagged Dead Tree",
+    			/*GEID*/ 8417,
+    			/*GEMidPrice*/ 1070,
+    			/*shopPrice*/ 1000,
+    			/*Experience*/ 31,
+    			/*imageURL*/ "bagged_plant",
+    			/*ID*/ "18"));
+    	hash.put("Bagged Nice Tree", new Materials(/*Type*/ "Bagged Nice Tree",
+    			/*GEID*/ 8419,
+    			/*GEMidPrice*/ 2150,
+    			/*shopPrice*/ 2000,
+    			/*Experience*/ 44,
+    			/*imageURL*/ "bagged_plant",
+    			/*ID*/ "19"));
+    	hash.put("Bagged Oak Tree", new Materials(/*Type*/ "Bagged Oak Tree",
+    			/*GEID*/ 8421,
+    			/*GEMidPrice*/ 5170,
+    			/*shopPrice*/ 5000,
+    			/*Experience*/ 70,
+    			/*imageURL*/ "bagged_plant",
+    			/*ID*/ "20"));
+    	hash.put("Bagged Willow Tree", new Materials(/*Type*/ "Bagged Willow Tree",
+    			/*GEID*/ 8423,
+    			/*GEMidPrice*/ 10200,
+    			/*shopPrice*/ 10000,
+    			/*Experience*/ 100,
+    			/*imageURL*/ "bagged_plant",
+    			/*ID*/ "21"));
+    	hash.put("Bagged Maple Tree", new Materials(/*Type*/ "Bagged Maple Tree",
+    			/*GEID*/ 8425,
+    			/*GEMidPrice*/ 15100,
+    			/*shopPrice*/ 15000,
+    			/*Experience*/ 122,
+    			/*imageURL*/ "bagged_plant",
+    			/*ID*/ "22"));
+    	hash.put("Bagged Yew Tree", new Materials(/*Type*/ "Bagged Yew Tree",
+    			/*GEID*/ 8427,
+    			/*GEMidPrice*/ 20000,
+    			/*shopPrice*/ 20000,
+    			/*Experience*/ 141,
+    			/*imageURL*/ "bagged_plant",
+    			/*ID*/ "23"));
+    	hash.put("Bagged Magic Tree", new Materials(/*Type*/ "Bagged Magic Tree",
+    			/*GEID*/ 8429,
+    			/*GEMidPrice*/ 30400,
+    			/*shopPrice*/ 50000,
+    			/*Experience*/ 223,
+    			/*imageURL*/ "bagged_plant",
+    			/*ID*/ "24"));
+    	hash.put("Watering Can", new Materials(/*Type*/ "Watering Can",
+    			/*GEID*/ 5331,
+    			/*GEMidPrice*/ 86,
+    			/*shopPrice*/ 25,
+    			/*Experience*/ 0,
+    			/*imageURL*/ "watering_can",
+    			/*ID*/ "25"));
+    	hash.put("Bagged Plant 1", new Materials(/*Type*/ "Bagged Plant 1",
+    			/*GEID*/ 8431,
+    			/*GEMidPrice*/ 1170,
+    			/*shopPrice*/ 1000,
+    			/*Experience*/ 31,
+    			/*imageURL*/ "bagged_plant",
+    			/*ID*/ "26"));
+    	hash.put("Bagged Plant 2", new Materials(/*Type*/ "Bagged Plant 2",
+    			/*GEID*/ 8433,
+    			/*GEMidPrice*/ 5200,
+    			/*shopPrice*/ 5000,
+    			/*Experience*/ 70,
+    			/*imageURL*/ "bagged_plant",
+    			/*ID*/ "27"));
+    	hash.put("Bagged Plant 3", new Materials(/*Type*/ "Bagged Plant 3",
+    			/*GEID*/ 8435,
+    			/*GEMidPrice*/ 10200,
+    			/*shopPrice*/ 10000,
+    			/*Experience*/ 100,
+    			/*imageURL*/ "bagged_plant",
+    			/*ID*/ "28"));
+    	    	
+    	return hash;
+    }
+
 }
