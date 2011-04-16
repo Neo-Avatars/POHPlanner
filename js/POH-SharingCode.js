@@ -2,6 +2,8 @@ var AOffset = 65;
 
 //example code with 14 rooms
 //CEKB,FDEE,FFKG,UCCD,UDKB,UEBC,VDBC,WEIF,YHEE,YICD,eDIF,fDIF,gEBC,iHCD
+//with 20
+//BEKB,EDEE,EFKG,TCCD,TDKB,TEBC,UCOB,UDBC,UEBC,VBIF,VCBC,VDKG,VEIF,WBOB,WDBC,XHEE,XICD,dDIF,eDIF,fEBC
 
 /*Calculates the Sharing Code for the house
 Requires a house array as a parameter so that it can be used to make rotating the house easier
@@ -28,6 +30,9 @@ function calculateSharingCode(houseArrayToUse){
 	//console.log("in " + code);
 	//set the value of the Sharing Code box to the code
 	$('#sharingCodeInput').val(code);
+
+	//and set a cookie so it'll be remembered for the next visit
+	$.cookie('pohPlannerSharingCode', code);
 	
 	return code;
 }
@@ -36,7 +41,7 @@ function calculateSharingCode(houseArrayToUse){
 function loadHouseFromSharingCode(code){
 	//console.time("load house");
 	$house.loading = true;
-	
+	hideVisibleFrames();
 	//reset the house
 	if($house.initialised){
 		resetHouse();
@@ -69,9 +74,32 @@ function loadHouseFromSharingCode(code){
 			houseArray[ijk[0]][ijk[1]][ijk[2]].doorLayout = calculateDoorLayoutFromChar(splitCode[i].substr(2, 1));
 			changeRoomOverviewImage(ijk[0], ijk[1], ijk[2]);
 		}
+		setSharingCodeInputBoxValue(code);
 	}
+	//call only at the end, not after each room is built
+	updateNumberOfRooms();
+	updateRoomsCost();
+	updateTotalCost();
+	
 	$house.loading = false;
 	//console.timeEnd("load house");
+}
+
+/*Loads the default house */
+function loadDefaultHouse(){
+	var code = "UDOB,UEBC"; //default
+	$.cookie('pohPlannerSharingCode', code);
+	loadHouseFromSharingCode(code);
+	//make it so you're viewing the ground floor
+	hideSelectedOverviewFloor();
+	$house.visibleOverviewFloor = 1;
+	$('#floorSelectDropDown').val('groundFloor');
+	showSelectedOverviewFloor();
+}
+
+/*Sets the value of the Sharing Code input box */
+function setSharingCodeInputBoxValue(code){
+	$('#sharingCodeInput').val(code);
 }
 
 /*Resets the house by demolishing any built rooms */
@@ -80,8 +108,9 @@ function resetHouse(){
 	for(var i = 0; i < 3; i++){
 		for(var j = 0; j < 9; j++){
 			for(var k = 0; k < 9; k++){
+				//if there's a room built there
 				if(houseArray[i][j][k].labelText !== ' '){
-					demolishRoom3(i, j, k);
+					demolishRoom3(i, j, k); //demolish it
 				}
 			}
 		}

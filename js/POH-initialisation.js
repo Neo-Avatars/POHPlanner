@@ -1,8 +1,50 @@
+/*-CONFIRMATION DIALOGUES AND ERROR MESSAGES */
+//http://stackoverflow.com/questions/358168/how-to-create-a-custom-confirm-pause-js-execution-until-user-clicks-button
+
+function initDialogues(){
+	initDialogueButtonEvents();
+	initTriggers();
+	initDialogueStoppingInputs();
+}
+
+/*Gives a way to stop the confirmation dialogues appearing again */
+function initDialogueStoppingInputs(){
+	$('#confirmationDialogues .modalConfirmationButtons').each(function(){
+		$(this).after(createDialogueStoppingInputs($(this).attr("id")))
+	});
+}
+
+/*Adds the various events to buttons in the modal dialogues */
+function initDialogueButtonEvents(){
+	//confirm house movement when room(s) would be demolished by doing so
+	var demolishOnMoveButtons = $("#demolishOnMove button").click(function(e){
+		//see if they want to continue with the move anyway
+		var continueAnyway = demolishOnMoveButtons.index(this) === 0;
+		
+		//remember the setting if the box is checked
+		if($('#demolishOnMoveButtonsCheck').is(':checked')){
+			$house.noConfirmation.demolishOnMove = true;
+			$house.noConfSettings.demolishOnMove.value = continueAnyway ? true : false;
+		}
+
+		if(continueAnyway){
+			moveHouseConfirmed($savedVariables.xChange, $savedVariables.yChange);
+		}
+	});
+}
+
+/*-HIDDEN STUFF THAT YOU CAN'T SEE RELATED TO DIALOGUES */	
+
+/*Initialises triggers for buttons in various confirmation dialogues */
+function initTriggers(){
+	addMoveHouseTriggers();
+}
+
 /*-THE GIANT DIVs THAT HOUSE EVERYTHING */
 
 /*Creates the core DIVs that house everything */
 function initCoreDivs(){
-	var core = '<div id="topBar"></div>';
+	var core = generateBorders('topBarBorder', 'topBar'); //'<div id="topBar"></div>';
 	core += generateBorders('overviewBorder', 'houseOverview');
 	core += generateBorders('infoPanelBorder', 'infoPanel');
 	$('#POHPlanner').html(core);
@@ -12,18 +54,35 @@ function initCoreDivs(){
 
 /*Adds content to the top bar */
 function initTopBar(){
-	$('#topBar').html(createTopBarDivs());
-	$('#topBarSharingDiv').html(createTopBarSharingContent());
-	$('#topBarMenu').html(createTopBarMenu());
+	//$('#topBar').html(createTopBarDivs());
+	//$('#topBarSharingDiv').html(createTopBarSharingContent());
+	//$('#topBarMenu').html(createTopBarMenu());
+	$('#topBar').html(createTopBar());
+	$('#topBarSharingDiv input').aToolTip();
+	
+	$('#moveHouseNorth').data('movementData', { xDirection: true, positiveDirection: false, compass : 'north' });
+	$('#moveHouseSouth').data('movementData', { xDirection: true, positiveDirection: true, compass : 'south' });
+	$('#moveHouseWest').data('movementData', { xDirection: false, positiveDirection: false, compass : 'west' });
+	$('#moveHouseEast').data('movementData', { xDirection: false, positiveDirection: true, compass : 'east' });
+	//xDirection="true" positiveDirection="false" compass="north"
+	//xDirection="true" positiveDirection="true" compass="south"
+	//xDirection="false" positiveDirection="false" compass="west"
+	//xDirection="false" positiveDirection="true" compass="east"
 	
 	//highlight the Sharing Code when it's box gets focus
-	$('#topBarSharingDiv input[type=text]').focus(function() {
+	//in Chrome / Safari, you need to drag the mouse slightly when you click for it to highlight
+	$('#sharingCodeInput').focus(function() {
 		$(this).select();
 	});
 	
-	//load the specified Sharing Code when the button is clicked
+	//load the specified Sharing Code when the button is clicked or you hit enter when the Sharing Code input has focus
 	$('#loadSharingCodeButton').click(function() {
 		loadHouseFromSharingCode($('#sharingCodeInput').val());
+	});
+	$('#sharingCodeInput').keydown(function(e) {
+		if(e.keyCode === 13){
+			loadHouseFromSharingCode($('#sharingCodeInput').val());
+		}
 	});
 }
 
@@ -69,14 +128,19 @@ function initHouse() {
 
 /*Builds the default rooms for the house */
 function buildDefaultRooms(){
-	var code = "UDOB,UEBC"; //default
-	loadHouseFromSharingCode(code);
+	var code;
 	
+	//try loading a previous house design from a cookie
+	if($.cookie('pohPlannerSharingCode') != null){
+		code = $.cookie('pohPlannerSharingCode');
+		loadHouseFromSharingCode(code);
+		
+	} else { //or fall back to a default value and create a cookie
+		loadDefaultHouse();
+	}
+
 	//buildRoom(1, 4, 3, 1);
 	//buildRoom(1, 4, 4, 2);
-	
-	//set the Sharing Code for the world to see
-	$('#sharingCodeInput').val(code);
 }
 
 /*-RIGHT PANEL */
@@ -90,6 +154,9 @@ function initInfoPanel(){
 	$('#infoPanelFloorAndCharStats').html(createInfoPanelFloorAndCharStatsContent());
 	$('#floorAndCharStatsTable tr').aToolTip();
 	$('#floorAndCharStatsTable input').aToolTip();
+	
+	//create a way to view your stats
+	$('#userStatsFrame .faceboxInner').html(createStatsAndQuestStatusContent());
 
 	//create content for the House Stats section
 	initHouseStatsContent();
@@ -117,27 +184,30 @@ function initHouseStatsContent(){
 	
 	//say what goes in each cell in the table
 	var tableContent = [
-		['Number of Rooms:', $house.builtRooms + ' / ' + $house.maxRooms, ''],
-		['Rooms Cost:', $house.totalRoomCost, 'gp'],
-		['Furniture Cost:', $house.totalFurniCost, 'gp'],
-		['Furniture Exp:', $house.totalFurniXp, 'xp'],
-		['Total Cost:', ($house.totalRoomCost + $house.totalFurniCost), 'gp']
+		['Number of Rooms:', '<span id="statsRoomNumbers"><span id="statsBuiltRooms">' + $house.builtRooms + '</span> / <span id="statsMaxRooms">' + $house.maxRooms + '</span></span>', '',
+			'The number of rooms that are currently built and the maximum you can build with your specified Construction level'],
+		['Rooms Cost:', '<span id="statsTotalRoomCost">' + $house.totalRoomCost + '</span>', 'gp', 'The total cost of all the rooms that have been built'],
+		['Furniture Cost:', '<span id="statsTotalFurniCost">' + $house.totalFurniCost + '</span>', 'gp', 'The total cost of all the furniture in the house'],
+		['Furniture Exp:', '<span id="statsTotalFurniXp">' + $house.totalFurniXp + '</span>', 'xp', 'The total Construction experience gained by building all the furniture in the house'],
+		['Total Cost:', '<span id="statsTotalHouseCost">' + ($house.totalRoomCost + $house.totalFurniCost) + '</span>', 'gp', 'The total cost of all the rooms and furniture combined']
 	];
 	
 	$('#infoPanelHouseStats').html(generateInfoPanelStatsTable(tableContent, 'houseStatsTable', 'House'));
+	//$('#houseStatsTable tr').aToolTip({inSpeed: 800});
 }
 
 /*Initialises the Room Stats Array content */
 function initRoomStatsContent(){
 	//say what goes in each cell in the table
 	var tableContent = [
-		['Required Level:', '', ''],
-		['Room Cost:', 0, 'gp'],
-		['Furniture Cost:', 0, 'gp'],
-		['Furniture Exp:', 0, 'xp']
+		['Required Level:', '<span id="statsRoomLevel"></span>', '', 'The Construction level required to build the selected room'],
+		['Room Cost:', '<span id="statsRoomCost">' + 0 + '</span>', 'gp', 'The cost to build the seleccted room'],
+		['Furniture Cost:', '<span id="statsRoomFurniCost">' + 0 + '</span>', 'gp', 'The cost of all the furniture built within the selected room'],
+		['Furniture Exp:', '<span id="statsRoomFurniXp">' + 0 + '</span>', 'xp', 'The Construction experience gained by building all the furniture in the selected room']
 	];
 	
-	$('#infoPanelRoomStats').html(generateInfoPanelStatsTable(tableContent, 'roomStatsTable', 'Room'));	
+	$('#infoPanelRoomStats').html(generateInfoPanelStatsTable(tableContent, 'roomStatsTable', '<span id="statsRoomNameHeading">Room</span>'));	
+	//$('#roomStatsTable tr').aToolTip({inSpeed: 800});
 	
 	initRoomStatsButtons();
 }
@@ -145,11 +215,12 @@ function initRoomStatsContent(){
 /*Initialises the #infoPanelRoomButtons content */
 function initRoomStatsButtons(){
 	$('#infoPanelRoomStats').append(createRoomStatsButtons());
+	$('#infoPanelRoomButtons input').aToolTip();
 }
 
 /*-ROOM BUILDING TABLE */
 
 /*Initialise the table that allows you to build furniture and whatnot */
 function initRoomBuildingTable(){
-	$('#roomBuildingFrame').html(createRoomBuildingTable());
+	$('#roomBuildingFrame .faceboxInner').html(createRoomBuildingTable());
 }

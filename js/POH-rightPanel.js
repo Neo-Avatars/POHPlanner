@@ -22,35 +22,46 @@ function updateHouseStatsContent(build, i, j, k){
 		$house.builtRooms--; //say that you've demolished it
 		$house.totalRoomCost -= houseArray[i][j][k].cost; //reduce room cost
 	}
-
-	updateNumberOfRooms();
-	updateRoomsCost();
-	updateTotalCost();
+	if(!$house.loading){
+		updateNumberOfRooms();
+		updateRoomsCost();
+		updateTotalCost();
+	}
 }
 
 /*Updates the number of rooms */
 function updateNumberOfRooms(){
-	$('#houseStatsTable tr:eq(1) td:eq(1) span:eq(0)').html($house.builtRooms +' / '+ $house.maxRooms);
+	//$('#houseStatsTable tr:eq(1) td:eq(1) span:eq(0)').html($house.builtRooms +' / '+ $house.maxRooms);
+	$('#statsBuiltRooms').html($house.builtRooms);
+}
+
+/*Updates the maximum bumber of rooms */
+function updateMaxNumberOfRooms(){
+	$('#statsMaxRooms').html($house.maxRooms);
 }
 
 /*Updates the cost of rooms */
 function updateRoomsCost(){
-	$('#houseStatsTable tr:eq(2) td:eq(1) span:eq(0)').html(addCommasToLargeNumbers($house.totalRoomCost));
+	//$('#houseStatsTable tr:eq(2) td:eq(1) span:eq(0)').html(addCommasToLargeNumbers($house.totalRoomCost));
+	$('#statsTotalRoomCost').html(addCommasToLargeNumbers($house.totalRoomCost));
 }
 
 /*Updates the cost of furniture */
 function updateFurnitureCost(){
-	$('#houseStatsTable tr:eq(3) td:eq(1) span:eq(0)').html(addCommasToLargeNumbers($house.totalFurniCost));
+	//$('#houseStatsTable tr:eq(3) td:eq(1) span:eq(0)').html(addCommasToLargeNumbers($house.totalFurniCost));
+	$('#statsTotalFurniCost').html(addCommasToLargeNumbers($house.totalFurniCost));
 }
 
 /*Updates the experience given by furniture */
 function updateFurnitureExp(){
-	$('#houseStatsTable tr:eq(4) td:eq(1) span:eq(0)').html(addCommasToLargeNumbers($house.totalFurniXp));
+	//$('#houseStatsTable tr:eq(4) td:eq(1) span:eq(0)').html(addCommasToLargeNumbers($house.totalFurniXp));
+	$('#statsTotalFurniXp').html(addCommasToLargeNumbers($house.totalFurniXp));
 }
 
 /*Updates the total cost of furniture and rooms combined */
 function updateTotalCost(){
-	$('#houseStatsTable tr:eq(5) td:eq(1) span:eq(0)').html(addCommasToLargeNumbers(($house.totalRoomCost + $house.totalFurniCost)));
+	//$('#houseStatsTable tr:eq(5) td:eq(1) span:eq(0)').html(addCommasToLargeNumbers(($house.totalRoomCost + $house.totalFurniCost)));
+	$('#statsTotalHouseCost').html(addCommasToLargeNumbers($house.totalRoomCost + $house.totalFurniCost));
 }
 
 /*-ROOM STATS */
@@ -66,19 +77,27 @@ function updateRoomStatsContent(){
 }
 
 /*Updates the name of the room */
-function updateSelectedRoomName(room){
-	$('#roomStatsTable tr:eq(0) th:eq(0) span:eq(0)').html(room.labelText);
-	$('#demolishButtonRoomName').html(room.labelText);
+function updateSelectedRoomName($room){
+	//$('#roomStatsTable tr:eq(0) th:eq(0) span:eq(0)').html($room.labelText);
+	$('#statsRoomNameHeading').html($room.labelText);
+	$('#demolishRoomButton').attr({
+		value : "Demolish " + $room.labelText,
+		title : "Demolish the " + $room.labelText
+	});
+	$('#rotateCwButton').attr("title", "Rotate the " + $room.labelText + " Clockwise");
+	$('#rotateCcwButton').attr("title", "Rotate the " + $room.labelText + " Anti-Clockwise");
 }
 
 /*Updates the required level */
-function updateRequiredLevel(room){
-	$('#roomStatsTable tr:eq(1) td:eq(1) span:eq(0)').html(room.level);
+function updateRequiredLevel($room){
+	//$('#roomStatsTable tr:eq(1) td:eq(1) span:eq(0)').html($room.level);
+	$('#statsRoomLevel').html($room.level);
 }
 
 /*Updates the cost */
-function updateRoomCost(room){
-	$('#roomStatsTable tr:eq(2) td:eq(1) span:eq(0)').html(addCommasToLargeNumbers(room.cost));
+function updateRoomCost($room){
+	//$('#roomStatsTable tr:eq(2) td:eq(1) span:eq(0)').html(addCommasToLargeNumbers($room.cost));
+	$('#statsRoomCost').html(addCommasToLargeNumbers($room.cost));
 }
 
 /*Hides the 'rotate' buttons if the room has 4 doors and shows them otherwise */

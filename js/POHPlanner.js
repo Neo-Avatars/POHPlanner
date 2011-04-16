@@ -1,5 +1,6 @@
 //the 'reveal' function of the facebox has been modified to allow the tablesorter to work when in the facebox
 //the aToolTip plugin has been changed to make it work as wanted
+//removed ':visible' from column 12460 in tablesorter.min.js so that the zebra will work on all tables from the start
 
 var $house = {
 	builtRooms : 0, //the number of rooms that have been built
@@ -13,13 +14,78 @@ var $house = {
 	loading : false, //loading a layout from a Sharing Code
 	hasCostumeRoom : false, //the house has a costume room built (can only have one)
 	hasMenagerie : false, //the house has a menagerie built (can only have one)
-	ignoreLevelLimits : false //whether you should ignore level limits when building a room
+	noConfirmation : { //whether you should ignore...
+		demolishOnMove : false, //the warning about rooms being demolished when moving a house too far in any direction
+		levelLimit : false, //level limits when building a room or furniture
+		maxRoomLimit : false //the maxRooms limit that the house has
+	},
+	noConfSettings : { //settings to remember the choice when the 'Remember this choice' box is ticked
+		demolishOnMove : {
+			value : false, //false = 'no', true = 'yes'
+			description : 'Demolish any rooms in the way when moving the house'
+		}
+	}
 };
+
+var $stats = { //the user's stats
+	attack : 1,
+	defence : 1,
+	strength : 1,
+	constitution : 10,
+	ranged : 1,
+	prayer : 1,
+	magic : 1,
+	cooking : 1,
+	woodcutting : 1,
+	fletching : 1,
+	fishing : 1,
+	firemaking : 1,
+	crafting : 1,
+	smithing : 1,
+	mining : 1,
+	herblore : 1,
+	agility : 1,
+	thieving : 1,
+	slayer : 1,
+	farming : 1,
+	runecrafting : 1,
+	hunter : 1,
+	construction : 1,
+	summoning : 1
+};
+
+/*Sets the specified stat to the specified level */
+function setStat(skill, level){
+	if(level < 1){//can't have negative levels
+		level = 1;
+	} else if (level > 99){//or ones above 99
+		level = 99;
+	}
+	//calculate the maximum number of rooms if you're setting a new Construction level
+	if(skill === "construction"){
+		setMaxRooms(level);
+	}
+	$stats[skill] = level;
+}
+
+/*Sets the maximum number of rooms that you can have built based on your Construction level and updates the relevant visible information */
+function setMaxRooms(level){
+	$house.maxRooms = calculateMaxRooms(level);
+	updateMaxNumberOfRooms();
+}
+
+/*Returns the maximum number of rooms you can build with the specified Construction level */
+function calculateMaxRooms(level){
+	var max = level < 38 ? 20 : level >= 99 ? 32 : level > 95 ? 31 : Math.floor(20 + ((level - 32) / 6));
+	return max;
+}
 
 var houseArray; //the array that makes up the house - created in initHouseArray()
 //var roomsArray; //an array of all the different types of room, set in POH-rooms.js
-var savedTooltipTitle; //a variable to make the aToolTips work as wanted
-var savedTooltipID; //another variable to make the aToolTips work as wanted
+var $savedVariables = { //somewhere to store temporary variables when the code goes off to do something else
+	//tooltipTitle : '', //a variable to make the aToolTips work as wanted
+	//tooltipID : '', //another variable to make the aToolTips work as wanted
+};
 
 /*-DATA CLASSES */
 /*Room*/
@@ -59,6 +125,16 @@ function checkArrayContentsAreTheSame(arrayOne, arrayTwo){
 	return true;
 }
 
+/*Returns true if there's a string input of 'true' otherwise returns false */
+function convertStringToBoolean(input){
+	return input === 'true' ? true : false;
+}
+
+/*Returns the string with a capitalised first letter */
+function capitaliseString(str){
+	return str.substr(0,1).toUpperCase() + str.substr(1,str.length);
+}
+
 /*Sets the ID (location) of the currently selected room in Overview mode*/
 function setSelectedRoom(i, j, k){
 	//remove the visible selection from the previous room
@@ -86,10 +162,27 @@ function setSelectedRoom(i, j, k){
 			updateRoomStatsContent();
 			//and show it
 			$('#infoPanelRoomStats').show();
+			//as well as hiding any frames that are shown
+			hideVisibleFrames();
 		} else { //otherwise hide the panel
 			$('#infoPanelRoomStats').hide();
 		}
 	}
+}
+
+/*Hides any visible frames such as the Room Building or Stats frames */
+function hideVisibleFrames(){
+	if(!$house.loading){
+		var $frames = $('.facebox');
+		$frames.each(function(){
+			if($(this).is(':visible')){
+				$(this).fadeOut('fast');
+			}
+		});
+	}
+	//if($('#roomBuildingFrame').is(':visible')){
+	//	$('#roomBuildingFrame').fadeOut('fast');
+	//}
 }
 
 /*Deselects the current room by setting it to the default [-1, -1, -1] */
@@ -196,6 +289,9 @@ function changeRoomOverviewImage(i, j, k){
 
 /*Builds a room*/
 function buildRoom(i, j, k, typeID){
+	/*if($house.initialised && !$house.loading){
+		hideVisibleFrames();
+	}*/
 	//console.time("build room");
 	var roomID = calculateRoomID(i, j, k);
 	//removes existing type
@@ -212,24 +308,25 @@ function buildRoom(i, j, k, typeID){
 	
 	//and updating the room above
 	updateRoomAbove(i, j, k);
-	
+	//console.log('hc',i,j,k,$(roomID  + ' a').hasClass('faceboxLink'));
 	//then switching the text
 	$(roomID  + ' a').html(houseArray[i][j][k].labelText)
-	//and removing the facebox link, replacing it with a link to Picture Mode
-	.removeClass("faceboxLink").attr("href", roomID + "PictureMode").unbind();
 	
-	//update the House Stats
-	//if not building a blank 'room'
-	if(houseArray[i][j][k].labelText != ' '){
+	//console.log('hc',i,j,k,$(roomID  + ' a').hasClass('faceboxLink'));
+	//if building a blank 'room'
+	if(houseArray[i][j][k].labelText === ' '){
+		
+	} else {//update the House Stats
 		updateHouseStatsContent(true, i, j, k);
+		//and remove the facebox link, replacing it with a link to Picture Mode
+		$(roomID  + ' a').removeClass("faceboxLink").attr("href", roomID + "PictureMode").unbind('click');
 	}
 	
 	if($house.initialised && !$house.loading){
 		//select the room
 		setSelectedRoom(i, j, k);
+		calculateSharingCode(houseArray);
 	}
-	
-	//if(!$house.loading)	console.log(calculateSharingCode(houseArray));
 	//console.timeEnd("build room");
 }
 
@@ -243,10 +340,12 @@ function demolishRoom3(i, j, k){
 	//build an empty 'room' in it's place
 	buildRoom(i, j, k, 0);
 	deselectAllRooms();
-	
-	//make it posible to build a new room in it's place
-	$(roomID + " a").addClass("faceboxLink").attr("href", "#roomBuildingFrame").facebox();
 
+	//$(roomID + ' a').addClass("faceboxLink").attr("href", "#roomBuildingFrame");
+	//$(roomID + ' .faceboxLink').overlay();
+	//make it posible to build a new room in it's place - need to fully replace the innerHTML otherwise the overlay won't work
+	updateBlankRoomHTML(roomID, i, j, k);
+	
 	//update the room above
 	updateRoomAbove(i, j, k);
 }
@@ -269,19 +368,31 @@ function updateRoomAbove(i, j, k){
 		//if you're building something, make the room above clickable
 		if(houseArray[i][j][k].labelText !== ' '){
 			//create a link and such
-			$(aboveID).html("<span><a href=\"#roomBuildingFrame\"\
-				onclick=\"setSelectedRoom("+(i + 1)+","+j+","+k+");return false;\"\
-					class=\"overviewLink faceboxLink\">" +
-						houseArray[i + 1][j][k].labelText + "</a></span>")
+			updateBlankRoomHTML(aboveID, i + 1, j, k)
+			/*$(aboveID).html('<span><a href="#roomBuildingFrame"\
+				onclick="setSelectedRoom('+(i+1)+','+j+','+k+');return false;"\
+					class="overviewLink faceboxLink" rel="#roomBuildingFrame">' +
+						houseArray[i + 1][j][k].labelText + '</a></span>')
 				//set the title and give it a tooltip
 				.attr("title", determineRoomOverviewTooltipText(i + 1, j, k)).aToolTip();
 			//make it so you can build a room here
-			$(aboveID + ' .faceboxLink').facebox();
+			$(aboveID + ' .faceboxLink').overlay();*/
 		} else {
 			//remove the ability to do anything useful
 			$(aboveID).html(" ").unbind();
 		}
 	}
+}
+
+/*Replaces the HTML in a room div in Overview mode, then makes it so clicking on it will bring up the room building frame
+It almost certainly isn't the best solution, but if the whole innerHTML isn't replaced, there are problems with dead clicks after demolishing rooms */
+function updateBlankRoomHTML(roomID, i, j, k){
+	$(roomID).html('<span><a href="#roomBuildingFrame"\
+		onclick="setSelectedRoom('+i+','+j+','+k+');return false;"\
+			class="overviewLink faceboxLink" rel="#roomBuildingFrame">' +
+				houseArray[i][j][k].labelText + '</a></span>');
+	//add the overview link
+	$(roomID + ' .faceboxLink').overlay();
 }
 
 /*Adds commas to numbers >= 1000 to make them easier to read
@@ -313,7 +424,7 @@ $( document ).ready( function() {
 	//$('.map').maphilight();
 	//$('area').aToolTip({inSpeed: 400, outSpeed: 100});
 
-	//console.time("document ready");
+	console.time("document ready");
 
 	//generate the core divs that everything will go in
 	initCoreDivs();
@@ -321,8 +432,15 @@ $( document ).ready( function() {
 	//add things to the top bar
 	initTopBar();
 	
+	//make all sortable tables have the hawt zebra effect
+	$.tablesorter.defaults.widgets = ['zebra'];
+	
 	//creating the table so you can make more rooms
 	initRoomBuildingTable();
+	$('#roomBuildingTable').tablesorter({
+		//widgets : ['zebra'],
+		sortList : [[2,0],[3,0],[1,0]]
+	});
 	
 	//initialise the content for the Info Panel (the one on the right)
 	initInfoPanel();
@@ -333,33 +451,42 @@ $( document ).ready( function() {
 	//give tooltips to the bottom two floors, but not the top since you can't build there by default and they can be given tooltips as needed
 	$('#' + determineIDOfFloor(0) + ' div').aToolTip();
 	$('#' + determineIDOfFloor(1) + ' div').aToolTip();
+
+	//adds the various events to buttons in the modal dialogues
+	//initDialogueButtonEvents();
+	initDialogues();
+	
+	$('#userStatsTable .userStatsInput').blur(function(){
+		setStat($(this).attr("name"), parseInt($(this).val()));
+	});
+	
+	$('#extra .faceboxInner').after(createFaceboxCloseButton());
 	
 	//make clicking on rooms in Overview mode open up the table they link to in a facebox
-	$('#houseOverview .faceboxLink').facebox();
+	$('#houseOverview .faceboxLink').overlay();
 	
-	//the default rooms need to be added after everything has been facebox()'d otherwise the 'zebra' will not work in
+	//make clicking on the 'Stats' button open up the stats panel
+	$('#openCharStatsButton').overlay();
+	
+	//the default rooms need to be added after everything has been facebox'd otherwise the 'zebra' will not work in
 	//the Room Building Frame when first choosing to build a room upstairs above them
 	buildDefaultRooms();
+	
+	$('#userStatsTable').tablesorter({
+		sortList : [[1,0]]
+	});
+	
+	//initMoveHouseTriggers();
+	//console.log(addHouseMoveTriggers());
 	
 	//console.log('Planner width: ' + $('#POHPlanner').width());
 	//console.log('width: ' + ($('#houseOverview').width() + $('#infoPanel').width()));
 	//console.log('height: ' + $('#houseOverview').height());
-	
-	//console.timeEnd("document ready");
-
-	//console.log(houseArray[1][4][3].doorLayout);
-	//console.log(calculateCharsFromRoomLocation(0, 0, 0));
-	//console.log(calculateRoomLocationFromChars(calculateCharsFromRoomLocation(0, 0, 0)));
-	
-	//console.log(addCommas(123456789.123456));
-	//console.log(addCommasToLargeNumbers(123456789.123456));
 
 	$house.initialised = true;
 	
-	//transformHouseByMatrix(-1, 0, 0, -1);
+	console.timeEnd("document ready");
 
-	//console.log(transformRoomByMatrix(8, 8, 1, 0, 0, -1));
-	
 	//var t = document.getElementById('POHPlanner').innerHTML;
 	//console.log(t.length);
 });

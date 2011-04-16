@@ -4,6 +4,10 @@ body {
 	background-color: #DABA94;
 }
 
+#topPadding {
+	height: 50px;
+}
+
 /* Tooltip */
 .aToolTip {
 	border: 2px solid #444;
@@ -38,9 +42,9 @@ body {
 
 /*The bar across the top with the menus and such in */
 #topBar {
-	width: 100%;
+	width: 733px;
 	height: 30px;
-	background: #F61;
+	padding: 4px;
 }
 
 #topBarMenu {
@@ -58,7 +62,7 @@ body {
 
 #sharingCodeInput {
 	line-height: 22px;
-	width: 400px;
+	width: 380px;
 	border: 1px solid #000;
 }
 
@@ -310,8 +314,126 @@ a.overviewLink, .room a {
 /* Somewhere to put the list of rooms you can build */
 
 #roomBuildingFrame {
+	
+}
+
+.faceboxInner {
 	overflow: auto;
-	height: 350px;
+	max-height: 424px;
+	padding-bottom:10px;
+}
+
+/*The user stats frame */
+
+#userStatsFrameInner tr {
+	cursor: default;
+}
+
+.userStatsIconCell {
+	text-align: center;
+}
+
+.userStatsRow input {
+	width: 50px;
+}
+
+/*'Facebox' Overlay - tables and general settings 
+http://flowplayer.org/tools/demos/overlay/trigger.html */
+
+.facebox { 
+ 
+    /* overlay is hidden before loading */ 
+    display:none; 
+ 
+    /* standard decorations */ 
+    width:400px;     
+    border:10px solid #666; 
+ 
+    /* for modern browsers use semi-transparent color on the border. nice! */ 
+    border:10px solid rgba(82, 82, 82, 0.698); 
+ 
+    /* hot CSS3 features for mozilla and webkit-based browsers (rounded borders) */ 
+    -moz-border-radius:8px; 
+    -webkit-border-radius:8px; 
+}
+ 
+.facebox div { 
+    padding:10px;
+	padding-bottom:25px; /*Leave room for the close button */
+    /*border:1px solid #3B5998;*/
+    background-color:#fff; 
+    font-family:"lucida grande",tahoma,verdana,arial,sans-serif 
+}
+
+div .faceboxClose {
+	border-top:1px solid #DDDDDD;
+}
+
+div .close {
+	padding:0px;
+}
+
+div .faceboxClose .close {
+	background:transparent url('images/facebox-closelabel.gif');
+	width:66px;
+	height:22px;
+	cursor:pointer;
+	float:right;
+}
+ 
+.facebox h2 { 
+    margin:-11px; 
+    margin-bottom:0px; 
+    color:#fff; 
+    background-color:#6D84B4; 
+    padding:5px 10px; 
+    border:1px solid #3B5998; 
+    font-size:20px; 
+}
+
+.facebox table {
+	border-collapse: collapse;
+}
+
+.facebox td {
+	border-bottom: 0;
+	padding: 0;
+}
+
+.facebox .body {
+	padding: 10px;
+	background: #fff;
+	width: 370px;
+}
+
+/*Modal Overlay - error / confirmation messages
+http://flowplayer.org/tools/demos/overlay/modal-dialog.html */
+
+.modal { 
+    background-color:#fff; 
+    display:none; 
+    width:400px; 
+    padding:15px; 
+    text-align:left; 
+    border:2px solid #333; 
+ 
+    /*opacity:0.8;*/ 
+    -moz-border-radius:6px; 
+    -webkit-border-radius:6px; 
+    -moz-box-shadow: 0 0 50px #ccc; 
+    -webkit-box-shadow: 0 0 50px #ccc; 
+} 
+ 
+.modal h2 { 
+    /*background:url(/img/global/info.png) 0 50% no-repeat;*/
+    margin:0px; 
+    padding:10px 0 10px 0; 
+    border-bottom:1px solid #333; 
+    font-size:20px; 
+}
+
+.modalNoMoreBox {
+	width: auto;
 }
 
 /* Facebox - the thing that building table appears in */
@@ -480,7 +602,7 @@ way to fit your requirements.
 =================================================================== */
 
 .POHmenu {
-	width:100px;
+	width:170px;
 	height:30px;
 	position:relative;
 	z-index:100;
@@ -489,8 +611,8 @@ way to fit your requirements.
 }
 /* hack to correct IE5.5 faulty box model */
 * html .POHmenu {
-	width:100px;
-	w\idth:99px;
+	width:170px;
+	w\idth:169px;
 }
 /* remove all the bullets, borders and padding from the default list styling */
 .POHmenu ul {
@@ -499,25 +621,31 @@ way to fit your requirements.
 	list-style-type:none;
 }
 .POHmenu ul ul {
-	width:100px;
+	width:120px;
+}
+.POHmenu ul ul ul {
+	width:200px;
 }
 /* float the list to make it horizontal and a relative positon so that you can control the dropdown menu positon */
 .POHmenu li {
 	float:left;
-	width:100px;
+	width:85px;
 	position:relative;
+}
+.POHmenu ul ul ul li {
+	width:200px;
 }
 /* style the links for the top level */
 .POHmenu a, .POHmenu a:visited {
 	display:block;
 	font-size:12px;
 	text-decoration:none;
-	color:#fff;
-	width:99px;
+	color:#000;
+	width:84px;
 	height:28px;
 	border:1px solid #000;
 	border-width:1px 0 1px 1px;
-	background:#09c;
+	background:#E2DFA8;
 	padding-left:0px;
 	line-height:28px;
 	font-weight:bold;
@@ -525,28 +653,20 @@ way to fit your requirements.
 }
 /* a hack so that IE5.5 faulty box model is corrected */
 * html .POHmenu a, * html .POHmenu a:visited {
-	width:100px;
-	w\idth:89px;
+	width:84px;
+	w\idth:83px;
 } 
 /* style the second level background */
 .POHmenu ul ul a.drop, .POHmenu ul ul a.drop:visited {
-	background:#d4d8bd url(http://www.cssplay.co.uk/menus/breadcrumbs/grey-arrow.gif) no-repeat 130px center;
+	background:#d4d8bd;
 }
 /* style the second level hover */
 .POHmenu ul ul a.drop:hover{
-	background:#c9ba65 url(http://www.cssplay.co.uk/menus/breadcrumbs/blue-arrow.gif) no-repeat 130px center;
+	background:#c9ba65;
 }
 .POHmenu ul ul :hover > a.drop {
-	background:#c9ba65 url(http://www.cssplay.co.uk/menus/breadcrumbs/blue-arrow.gif) no-repeat 130px center;
+	background:#c9ba65;
 }
-/* style the third level background */
-.POHmenu ul ul ul a, .POHmenu ul ul ul a:visited {
-	background:#e2dfa8;
-}
-/* style the third level hover */
-.POHmenu ul ul ul a:hover {
-	background:#b2ab9b;
-} 
 /* hide the sub levels and give them a positon absolute so that they take up no room */
 .POHmenu ul ul {
 	visibility:hidden;
@@ -554,7 +674,7 @@ way to fit your requirements.
 	height:0;
 	top:29px;
 	left:0;
-	width:100px;
+	width:121px;
 	border-top:1px solid #000;
 }
 /* another hack for IE5.5 */
@@ -564,13 +684,13 @@ way to fit your requirements.
 } 
 /* position the third level flyout menu */
 .POHmenu ul ul ul{
-	left:100px;
+	left:120px;
 	top:-1px;
-	width:100px;
+	width:222px; /*strange width, but it makes the border work correctly*/
 } 
 /* position the third level flyout menu for a left flyout */
 .POHmenu ul ul ul.left {
-	left:-100px;
+	left:-200px;
 } 
 /* style the table so that it takes no ppart in the layout - required for IE to work */
 .POHmenu table {
@@ -586,7 +706,7 @@ way to fit your requirements.
 	height:auto;
 	line-height:1em;
 	padding:5px 10px;
-	width:79px;
+	width:99px;
 	border-width:0 1px 1px 1px;
 	text-align:left;
 }
@@ -595,10 +715,15 @@ way to fit your requirements.
 	width:101px;
 	w\idth:79px;
 }
-/* style the third level links */
+/* style the third level background */
 .POHmenu ul ul ul a, .POHmenu ul ul ul a:visited {
+	background:#e2dfa8;
 	width:200px;
 }
+/* style the third level hover */
+.POHmenu ul ul ul a:hover {
+	background:#b2ab9b;
+} 
 /* style the top level hover */
 .POHmenu a:hover, .POHmenu ul ul a:hover{
 	color:#000;
