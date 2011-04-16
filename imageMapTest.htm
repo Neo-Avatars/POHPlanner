@@ -3,33 +3,118 @@
 <head>
 <title>POHPlanner</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<link type="text/css" href="css/POHPlanner.css" rel="stylesheet"  media="screen" /> 
-<script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
-<script type="text/javascript" src="js/jquery.maphilight.min.js"></script>
-<script type="text/javascript" src="js/atooltip.jquery.js"></script>
-<script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>
-<script type="text/javascript" src="js/jquery.cookie.js"></script>
-<script type="text/javascript" src="js/facebox.js"></script>
+<link type="text/css" href="css/POHPlanner.css" rel="stylesheet"  media="screen" />
+<script type="text/javascript" src="js/jquery-1.4.2.js"></script>
+<script type="text/javascript" src="js/css_browser_selector.js"></script>
+<script type="text/javascript" src="js/modernizr-1.1.min.js"></script>
+<script type="text/javascript" src="js/jquery.maphilight.js"></script>
+<script type="text/javascript" src="js/atooltip.poh.jquery.js"></script>
+<script type="text/javascript" src="js/jquery.cookies.js"></script>
+<script type="text/javascript" src="js/jquery.metadata.js"></script>
+<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/tools.overlay-1.2.2.js"></script>
+<script type="text/javascript" src="js/tools.expose-1.2.2.js"></script>
+<script type="text/javascript" src="js/jquery.qtip-1.0.0-rc3.js"></script>
 <script type="text/javascript" src="js/POH-rooms.js"></script>
+<script type="text/javascript" src="js/POH-hotspots.js"></script>
+<script type="text/javascript" src="js/POH-furniture.js"></script>
+<script type="text/javascript" src="js/POH-materials.js"></script>
 <script type="text/javascript" src="js/POH-HTMLgeneration.js"></script>
 <script type="text/javascript" src="js/POH-initialisation.js"></script>
 <script type="text/javascript" src="js/POH-rightPanel.js"></script>
 <script type="text/javascript" src="js/POH-SharingCode.js"></script>
 <script type="text/javascript" src="js/POH-transformation.js"></script>
+<script type="text/javascript" src="js/POH-realityCheck.js"></script>
+<script type="text/javascript" src="js/POH-pictureMode.js"></script>
 <script type="text/javascript" src="js/POHPlanner.js"></script>
+<!--<script type='text/javascript' 
+        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>-->
 
+<script type="text/javascript"> 
+var poh = new POHPlanner(true);
+<!--//EDEE,EFKG,TBCD,TCCD,TDKB,TEBC,UCOB,UDBC,UEBC,VBIF,VCBC,VDKG,VEIF,WBOB,XCIK,XHEE,XICD,dDIF,eDIF,fEBC,gDIK-->
+</script>
 </head>
 <body>
 
 <div id="topPadding"></div>
-
 <div id="POHPlanner">
-<div id="Ctrl-U_is_totally_ftw_though_you_need_to_do_more_searching_to_find_anything_interesting"></div>
+<div id="Ctrl-U_is_totally_ftw_though_you_need_to_do_more_searching_to_find_anything_interesting">
+	<noscript>
+		You will need to enable JavaScript to use this tool.
+	</noscript>
+</div>
 </div>
 
-<div id="spam"></div>
+<div id="debug"></div>
 
-<div id="roomBuildingFrame" style="display:none;"></div>
+<div id="extra">
+
+<div id="modalMessages">
+<div id="errorMessages"></div>
+<div id="confirmationDialogues">
+	<!--<div class="modal" id="maxRoomLimit">
+		<h2>Too many rooms!</h2>
+		
+		<p>There are already the maximum number of rooms, <span id="buildRoomMaxRooms">20</span>, that your 
+		specified Construction level allows.</p>
+		<p>Are you sure want to continue?</p>
+		
+		<p id="maxRoomLimitButtons" class="modalConfirmationButtons">
+			<button class="close">Yes</button>
+			<button class="close">No</button>
+		</p>
+	</div>-->
+	
+	<div class="modal" id="demolishOnMove">
+		<h2>Movement will Demolish Rooms</h2>
+		
+		<p>There are rooms in the <span id="moveHouseCompassDirection">north</span> side of the house
+		which will be demolished if you move the house any further.</p>
+		<p>Are you sure want to continue?</p>
+		
+		<p id="demolishOnMoveButtons" class="modalConfirmationButtons">
+			<button class="close">Yes</button>
+			<button class="close">No</button>
+		</p>
+	</div>
+	
+	<!--<div class="modal" id="demolishWithRoomAbove">
+		<h2>Demolition will Remove Room Above</h2>
+		
+		<p>There is a room upstairs which will be demolished if you choose to demolish this one.</p>
+		<p>Are you sure want to continue?</p>
+		
+		<p id="demolishWithRoomAboveButtons" class="modalConfirmationButtons">
+			<button class="close">Yes</button>
+			<button class="close">No</button>
+		</p>
+	</div>-->
+</div>
+</div>
+
+<div id="houseSettingsFrame" class="facebox"><div class="faceboxInner"></div></div>
+
+<div id="userStatsFrame" class="facebox"><div class="faceboxInner"></div></div>
+
+<div id="roomBuildingFrame" class="facebox"><div class="faceboxInner"></div></div>
+
+<div id="realityCheckFrame" class="facebox"><div class="faceboxInner"></div></div>
+
+<div id="furniBuildingFrame" class="facebox"><div class="faceboxInner"></div></div>
+
+</div>
+
+<!--<div id="faq">
+<h2>FAQ</h2>
+<p><h4>Why doesn't it do / I want it to be able to do... x / y / z?</h4>
+Mention it and I'll see what can be done.</p>
+<p><h4>Why aren't all the rooms real / Why are some rooms missing?</h4>
+They've not all been added and a couple of the fake ones are being used for testing.</p>
+<p><h4>How do I change a setting that I set to be remembered?</h4>
+When you refresh the page, any remembered settings will be forgotten. The house, however, will be 
+remembered so long as you allow cookies to be set.</p>
+</div>-->
 
 <!--<img src="java screenshot.png" />
 
