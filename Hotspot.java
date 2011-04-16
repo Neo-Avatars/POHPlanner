@@ -3,18 +3,21 @@ import javax.swing.JButton;
 public class Hotspot {
 
 	private String type;
-	private Object[] furniTypes;
-	private Object active;
+	private Furniture[] furniTypes;
+	private Furniture active;
 	private JButton hotspotButton;
 	
 	public Hotspot( String type ){
 		
+		//make sure names later in the list do not contain something earlier on
+		//eg. 'Big Tree' must come before 'Tree' otherwise it won't get there
+		
 		if(type.contains("Centrepiece")){
 			initCentrepiece();
-		} else if(type.contains("Tree")){
-			initTree();
 		} else if(type.contains("Big Tree")){
 			initBigTree();
+		} else if(type.contains("Tree")){
+			initTree();
 		} else if(type.contains("Small Plant 1")){
 			initSmallPlant1();
 		} else if(type.contains("Small Plant 2")){
@@ -30,7 +33,7 @@ public class Hotspot {
 	
 	private void initCentrepiece(){
 		this.type = "Centrepiece";
-		this.furniTypes = new Object[] {
+		this.furniTypes = new Furniture[] {
 			new Furniture("None"),
 			new Furniture("Exit Portal"),
 			new Furniture("Decorative Rock"),
@@ -42,7 +45,7 @@ public class Hotspot {
 	}
 	private void initTree(){
 		this.type = "Tree";
-		this.furniTypes = new Object[] {
+		this.furniTypes = new Furniture[] {
 			new Furniture("None"),
 			new Furniture("Tree"),
 			new Furniture("Nice Tree"),
@@ -56,7 +59,7 @@ public class Hotspot {
 	}
 	private void initBigTree(){
 		this.type = "Big Tree";
-		this.furniTypes = new Object[] {
+		this.furniTypes = new Furniture[] {
 			new Furniture("None"),
 			new Furniture("Tree"),
 			new Furniture("Nice Tree"),
@@ -70,7 +73,7 @@ public class Hotspot {
 	}
 	private void initSmallPlant1(){
 		this.type = "Small Plant 1";
-		this.furniTypes = new Object[] {
+		this.furniTypes = new Furniture[] {
 			new Furniture("None"),
 			new Furniture("Plant"),
 			new Furniture("Small Fern"),
@@ -80,7 +83,7 @@ public class Hotspot {
 	}
 	private void initSmallPlant2(){
 		this.type = "Small Plant 2";
-		this.furniTypes = new Object[] {
+		this.furniTypes = new Furniture[] {
 			new Furniture("None"),
 			new Furniture("Dock Leaf"),
 			new Furniture("Thistle"),
@@ -90,7 +93,7 @@ public class Hotspot {
 	}
 	private void initBigPlant1(){
 		this.type = "Big Plant 1";
-		this.furniTypes = new Object[] {
+		this.furniTypes = new Furniture[] {
 			new Furniture("None"),
 			new Furniture("Fern"),
 			new Furniture("Bush"),
@@ -100,7 +103,7 @@ public class Hotspot {
 	}
 	private void initBigPlant2(){
 		this.type = "Big Plant 2";
-		this.furniTypes = new Object[] {
+		this.furniTypes = new Furniture[] {
 			new Furniture("None"),
 			new Furniture("Short Plant"),
 			new Furniture("Large Leaf Bush"),
@@ -110,7 +113,7 @@ public class Hotspot {
 	}
 	
 	private void createHotspotButton(){
-		this.hotspotButton = new JButton("Build " + this.type);
+		this.hotspotButton = new JButton("Build Furniture: " + this.type);
 		System.out.println("Active: " + active);
 		System.out.println("Type: " + type);
 	}
@@ -121,16 +124,16 @@ public class Hotspot {
 	public void setHotspotType(String newType){
 		type = newType;
 	}
-	public Object[] getFurniTypes(){
+	public Furniture[] getFurniTypes(){
 		return furniTypes;
 	}
-	public void setFurniTypes(Object[] newFurniTypes){
+	public void setFurniTypes(Furniture[] newFurniTypes){
 		furniTypes = newFurniTypes;
 	}
-	public Object getBuiltFurniture(){
+	public Furniture getBuiltFurniture(){
 		return active;
 	}
-	public void setBuiltFurniture(Object newActive){
+	public void setBuiltFurniture(Furniture newActive){
 		active = newActive;
 	}
 	public JButton getHotspotButton(){

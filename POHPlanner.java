@@ -1,7 +1,16 @@
 import javax.swing.*;
 import javax.swing.border.*;
+
+//import HiscoreData;
+
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 
@@ -24,6 +33,8 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	
 	private Color bgblue = new Color(83, 115, 191);
 	private Color bgcream = new Color(217, 198, 163);
+	private Color txtred = new Color(127, 2, 1);
+	private Color txtblue = new Color(1, 0, 254);
 	
 	Border blueBorder = BorderFactory.createLineBorder(new Color(100, 136, 201));
     Border titledBorder = BorderFactory.createTitledBorder( blueBorder,
@@ -43,6 +54,8 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	boolean viewingGrid;
 	
 	LinkedHashMap<Object, Room> roomHash = new LinkedHashMap<Object, Room>();
+	private ArrayList<HiscoreData> hiscoreList = new ArrayList<HiscoreData>();
+	private String username = "Neo Avatars";
 	
 	int overviewViewingLevel = 1;
 	String lastViewedRoom;
@@ -100,13 +113,29 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	private JPanel roomBuildingScrollPanel = new JPanel();
 	private JScrollPane roomBuildingScrollPane = new JScrollPane(roomBuildingScrollPanel);
 	
+	private JFrame furniBuildingFrame = new JFrame();
+	private JPanel furniBuildingScrollPanel = new JPanel();
+	private JScrollPane furniBuildingScrollPane = new JScrollPane(furniBuildingScrollPanel);
+	private JPanel furniBuildPanel1 = new JPanel();
+	private JPanel furniBuildPanel2 = new JPanel();
+	private JPanel furniBuildPanel3 = new JPanel();
+	private JPanel furniBuildPanel4 = new JPanel();
+	private JPanel furniBuildPanel5 = new JPanel();
+	private JPanel furniBuildPanel6 = new JPanel();
+	private JPanel furniBuildPanel7 = new JPanel();
+	private JPanel furniBuildPanel8 = new JPanel();
+	private JPanel furniBuildPanel = new JPanel();
+	private JLabel furniRemoveFromHotspotLabel = new JLabel("Remove Furniture in Hotspot");
+	
 	JTabbedPane roomInfoTabbedPane = new JTabbedPane();
 	private JPanel roomInfoOverviewPanel = new JPanel();
 	private JPanel roomInfoBuildFurniScrollPanel = new JPanel();
 	private JScrollPane roomInfoBuildFurniScrollPane = new JScrollPane(roomInfoBuildFurniScrollPanel);
 	
 	public void init() {
+		new RuneScapeHiscore();
 		initRoomBuildingFrame();
+		initFurniBuildingFrame();
 		initRoomArray();
 		createAndShowGUI();
 		initRoomInfoPanel();
@@ -247,9 +276,9 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 
 		//add hotspot buttons
 		for(int i = 0; i < roomHash.get(roomKey).getHotspots().length; i++){
-			Object[] test = roomHash.get(roomKey).getHotspots();
-			System.out.println(test[i].hashCode());
-			//roomInfoBuildFurniScrollPanel.add(test[i].getHotspotButton());
+			Hotspot[] hotspotArray = roomHash.get(roomKey).getHotspots();
+			roomInfoBuildFurniScrollPanel.add(hotspotArray[i].getHotspotButton());
+			hotspotArray[i].getHotspotButton().addMouseListener(this);
 		}
 		
 	    /*Graphics g = roomInfoPanel.getGraphics();
@@ -278,6 +307,257 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 	    
 	}
 	
+	public void initFurniBuildingFrame(){
+		
+		furniBuildingFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		
+		furniBuildingFrame.setBounds(50, 80, 600, 400);
+		furniBuildingFrame.setIconImage(new ImageIcon("hammer.gif").getImage());
+		furniBuildingFrame.setTitle("Build Furniture");
+
+		furniRemoveFromHotspotLabel.setForeground(txtred);
+		
+		furniBuildingFrame.add(furniBuildingScrollPane);
+		furniBuildingScrollPanel.setLayout(new GridLayout(4, 2, 0, 0));
+		furniBuildingScrollPanel.setBackground( bgcream );
+		furniBuildPanel1.setBackground( bgcream );
+		furniBuildPanel2.setBackground( bgcream );
+		furniBuildPanel3.setBackground( bgcream );
+		furniBuildPanel4.setBackground( bgcream );
+		furniBuildPanel5.setBackground( bgcream );
+		furniBuildPanel6.setBackground( bgcream );
+		furniBuildPanel7.setBackground( bgcream );
+		furniBuildPanel8.setBackground( bgcream );
+		
+		furniBuildPanel1.setBorder(roomBorder);
+		furniBuildPanel2.setBorder(roomBorder);
+		furniBuildPanel3.setBorder(roomBorder);
+		furniBuildPanel4.setBorder(roomBorder);
+		furniBuildPanel5.setBorder(roomBorder);
+		furniBuildPanel6.setBorder(roomBorder);
+		furniBuildPanel7.setBorder(roomBorder);
+		furniBuildPanel8.setBorder(roomBorder);
+		
+		furniBuildPanel1.setLayout(new GridBagLayout());
+		furniBuildPanel2.setLayout(new GridBagLayout());
+		furniBuildPanel3.setLayout(new GridBagLayout());
+		furniBuildPanel4.setLayout(new GridBagLayout());
+		furniBuildPanel5.setLayout(new GridBagLayout());
+		furniBuildPanel6.setLayout(new GridBagLayout());
+		furniBuildPanel7.setLayout(new GridBagLayout());
+		furniBuildPanel8.setLayout(new GridBagLayout());
+		
+		furniBuildPanel1.addMouseListener(this);
+		furniBuildPanel2.addMouseListener(this);
+		furniBuildPanel3.addMouseListener(this);
+		furniBuildPanel4.addMouseListener(this);
+		furniBuildPanel5.addMouseListener(this);
+		furniBuildPanel6.addMouseListener(this);
+		furniBuildPanel7.addMouseListener(this);
+		furniBuildPanel8.addMouseListener(this);
+		
+		furniBuildingScrollPanel.add(furniBuildPanel1);
+		furniBuildingScrollPanel.add(furniBuildPanel2);
+		furniBuildingScrollPanel.add(furniBuildPanel3);
+		furniBuildingScrollPanel.add(furniBuildPanel4);
+		furniBuildingScrollPanel.add(furniBuildPanel5);
+		furniBuildingScrollPanel.add(furniBuildPanel6);
+		furniBuildingScrollPanel.add(furniBuildPanel7);
+		furniBuildingScrollPanel.add(furniBuildPanel8);
+
+		/*Hotspot testSpot = new Hotspot("Centrepiece");
+		
+		//loop through furniture that can be built in a Hotspot
+		int i = 1;
+		//for(int i = 0; i < testSpot.getFurniTypes().length; i++){
+			GridBagConstraints c = new GridBagConstraints();
+			
+			JLabel furniType = new JLabel(testSpot.getFurniTypes()[i].getFurniType());
+			JLabel furniImage = new JLabel(new ImageIcon("furniIcons/"+testSpot.getFurniTypes()[i].getFurniURL()+".gif" ));
+			JLabel materialsLabel = new JLabel("Materials:");
+			String furniLevelReq = "Level " + testSpot.getFurniTypes()[i].getLevel();
+			JLabel furniLevelReqLabel = new JLabel(furniLevelReq);
+			
+			String[] furniMats = new String[testSpot.getFurniTypes()[i].getMaterials().length];
+			for(int j = 0; j < furniMats.length; j++){
+				//MaterialName: NumberOfMaterial
+				furniMats[j] = testSpot.getFurniTypes()[i].getMaterials()[j].getMaterialType() + ": "
+						+ testSpot.getFurniTypes()[i].getMaterialNumbers()[j];
+			}
+			
+			int furniCost = 0;
+			int furniXP = 0;
+			//calculate cost and xp of item
+			for(int j = 0; j < testSpot.getFurniTypes()[i].getMaterials().length; j++){
+				furniCost += (testSpot.getFurniTypes()[i].getMaterials()[j].getGeMidPrice()
+						* testSpot.getFurniTypes()[i].getMaterialNumbers()[j]);
+				
+				furniXP += (testSpot.getFurniTypes()[i].getMaterials()[j].getExperience()
+						* testSpot.getFurniTypes()[i].getMaterialNumbers()[j]);
+			}
+			JLabel furniCostLabel = new JLabel("Cost: " + Integer.toString(furniCost) + "gp");
+			JLabel furniXPLabel = new JLabel("Exp: " + Integer.toString(furniXP));
+			
+			materialsLabel.setForeground(txtred);
+			furniType.setForeground(txtred);
+			furniLevelReqLabel.setForeground(txtblue);
+			furniCostLabel.setForeground(txtblue);
+			furniXPLabel.setForeground(txtblue);
+			
+			c.gridx = 0;
+			c.gridy = 0;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.gridheight = 3;
+			c.insets = new Insets(0, 20, 0, 20);
+			furniBuildPanel1.add(furniImage, c);
+			
+			c.gridheight = 1;
+			c.weightx = 1.0;
+			c.gridx = 1;
+			c.insets = new Insets(0, 0, 0, 0);
+			furniBuildPanel1.add(furniType, c);
+
+			c.gridy = 1;
+			furniBuildPanel1.add(furniLevelReqLabel, c);
+			
+			c.gridy = 2;
+			furniBuildPanel1.add(furniCostLabel, c);
+			
+			c.gridy = 3;
+			furniBuildPanel1.add(furniXPLabel, c);
+			
+			c.gridx = 2;
+			c.gridy = 0;
+			furniBuildPanel1.add(materialsLabel, c);
+			for(int j = 0; j < furniMats.length; j++){
+				c.gridy++;
+				JLabel matLabel = new JLabel(furniMats[j]);
+				matLabel.setForeground(txtblue);
+				furniBuildPanel1.add(matLabel, c);
+			}
+			
+		//}*/
+		
+		/*furniBuildPanel1.add(new JButton("1"));
+		furniBuildPanel2.add(new JButton("2"));
+		furniBuildPanel3.add(new JButton("3"));
+		furniBuildPanel4.add(new JButton("4"));
+		furniBuildPanel5.add(new JButton("5"));
+		furniBuildPanel6.add(new JButton("6"));
+		furniBuildPanel7.add(new JButton("7"));
+		furniBuildPanel8.add(new JButton("8"));*/
+		
+		furniBuildingFrame.setVisible(false);
+	}
+
+	public void createFurniBuildingFrameContent(String hotspotType){
+		Hotspot hotspot = new Hotspot(hotspotType);
+		int furniCost = 0;
+		int furniXP = 0;
+		
+		furniBuildingFrame.setVisible(true);
+		
+		for(int i = 0; i < hotspot.getFurniTypes().length; i++){
+			GridBagConstraints c = new GridBagConstraints();
+			
+			//set panels to display content in
+			if(i == 0){
+				furniBuildPanel = furniBuildPanel1;
+				furniBuildPanel.add(furniRemoveFromHotspotLabel, c);
+				continue;
+			}
+			else if(i == 1)furniBuildPanel = furniBuildPanel2;
+			else if(i == 2)furniBuildPanel = furniBuildPanel3;
+			else if(i == 3)furniBuildPanel = furniBuildPanel4;
+			else if(i == 4)furniBuildPanel = furniBuildPanel5;
+			else if(i == 5)furniBuildPanel = furniBuildPanel6;
+			else if(i == 6)furniBuildPanel = furniBuildPanel7;
+			else if(i == 7)furniBuildPanel = furniBuildPanel8;
+
+			furniCost = 0;
+			furniXP = 0;
+			
+			JLabel furniTypeLabel = new JLabel(hotspot.getFurniTypes()[i].getFurniType());
+			JLabel furniImageLabel = new JLabel(new ImageIcon("furniIcons/"+hotspot.getFurniTypes()[i].getFurniURL()+".gif" ));
+			JLabel materialsLabel = new JLabel("Materials:");
+			JLabel furniLevelReqLabel = new JLabel("Level " + hotspot.getFurniTypes()[i].getLevel());
+			
+			String[] furniMats = new String[hotspot.getFurniTypes()[i].getMaterials().length];
+			for(int j = 0; j < furniMats.length; j++){
+				//MaterialName: NumberOfMaterial
+				furniMats[j] = hotspot.getFurniTypes()[i].getMaterials()[j].getMaterialType() + ": "
+						+ hotspot.getFurniTypes()[i].getMaterialNumbers()[j];
+			}
+
+			//calculate cost and xp of item
+			for(int j = 0; j < hotspot.getFurniTypes()[i].getMaterials().length; j++){
+				furniCost += (hotspot.getFurniTypes()[i].getMaterials()[j].getGeMidPrice()
+						* hotspot.getFurniTypes()[i].getMaterialNumbers()[j]);
+				
+				furniXP += (hotspot.getFurniTypes()[i].getMaterials()[j].getExperience()
+						* hotspot.getFurniTypes()[i].getMaterialNumbers()[j]);
+			}
+			JLabel furniCostLabel = new JLabel("Cost: " + Integer.toString(furniCost) + "gp");
+			JLabel furniXPLabel = new JLabel("Exp: " + Integer.toString(furniXP));
+			
+			//set colours
+			materialsLabel.setForeground(txtred);
+			furniTypeLabel.setForeground(txtred);
+			furniLevelReqLabel.setForeground(txtblue);
+			furniCostLabel.setForeground(txtblue);
+			furniXPLabel.setForeground(txtblue);
+			
+			//put everything together and display
+			c.gridx = 0;
+			c.gridy = 0;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.gridheight = 3;
+			c.insets = new Insets(0, 20, 0, 20);
+			furniBuildPanel.add(furniImageLabel, c);
+			
+			c.gridheight = 1;
+			c.weightx = 1.0;
+			c.gridx = 1;
+			c.insets = new Insets(0, 0, 0, 0);
+			furniBuildPanel.add(furniTypeLabel, c);
+	
+			c.gridy = 1;
+			furniBuildPanel.add(furniLevelReqLabel, c);
+			
+			c.gridy = 2;
+			furniBuildPanel.add(furniCostLabel, c);
+			
+			c.gridy = 3;
+			furniBuildPanel.add(furniXPLabel, c);
+			
+			c.gridx = 2;
+			c.gridy = 0;
+			furniBuildPanel.add(materialsLabel, c);
+			for(int j = 0; j < furniMats.length; j++){
+				c.gridy++;
+				JLabel matLabel = new JLabel(furniMats[j]);
+				matLabel.setForeground(txtblue);
+				furniBuildPanel.add(matLabel, c);
+			}
+			
+		}
+		
+		//hide panels with no content
+		/*for(int i = 7; i >= hotspot.getFurniTypes().length; i--){
+
+			if(i == 7)furniBuildPanel = furniBuildPanel8;
+			else if(i == 6)furniBuildPanel = furniBuildPanel7;
+			else if(i == 5)furniBuildPanel = furniBuildPanel6;
+			else if(i == 4)furniBuildPanel = furniBuildPanel5;
+			else if(i == 3)furniBuildPanel = furniBuildPanel4;
+			else if(i == 2)furniBuildPanel = furniBuildPanel3;
+			else if(i == 1)furniBuildPanel = furniBuildPanel2;
+			else if(i == 0)furniBuildPanel = furniBuildPanel1;
+			
+			furniBuildPanel.setVisible(false);
+		}*/
+	}
+	
 	public void initRoomBuildingFrame(){
 		
 		roomBuildingFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -289,27 +569,27 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		roomBuildingFrame.add(roomBuildingScrollPane);
 		roomBuildingScrollPanel.setLayout(new GridLayout(21, 2, 0, 0));
 		
-		buildButtonGarden.setText("Build a Garden");
-		buildButtonParlour.setText("Build a Parlour");
-		buildButtonKitchen.setText("Build a Kitchen");
-		buildButtonDiningRoom.setText("Build a Dining Room");
-		buildButtonWorkshop.setText("Build a Workshop");
-		buildButtonBedroom.setText("Build a Bedroom");
-		buildButtonSkillHall.setText("Build a Skill Hall");
-		buildButtonGamesRoom.setText("Build a Games Room");
-		buildButtonCombatRoom.setText("Build a Combat Room");
-		buildButtonQuestHall.setText("Build a Quest Hall");
-		buildButtonStudy.setText("Build a Study");
-		buildButtonCostumeRoom.setText("Build a Costume Room");
-		buildButtonChapel.setText("Build a Chapel");
-		buildButtonPortalChamber.setText("Build a Portal Chamber");
-		buildButtonFormalGarden.setText("Build a Formal Garden");
-		buildButtonThroneRoom.setText("Build a Throne Room");
-		buildButtonOubliette.setText("Build a Oubliette");
-		buildButtonDungeonCorridor.setText("Build a Dungeon Corridor");
-		buildButtonDungeonJunction.setText("Build a Dungeon Junction");
-		buildButtonDungeonStairs.setText("Build a Dungeon Stairs");
-		buildButtonTreasureRoom.setText("Build a Treasure Room");
+		buildButtonGarden.setText("Build Room: Garden");
+		buildButtonParlour.setText("Build Room: Parlour");
+		buildButtonKitchen.setText("Build Room: Kitchen");
+		buildButtonDiningRoom.setText("Build Room: Dining Room");
+		buildButtonWorkshop.setText("Build Room: Workshop");
+		buildButtonBedroom.setText("Build Room: Bedroom");
+		buildButtonSkillHall.setText("Build Room: Skill Hall");
+		buildButtonGamesRoom.setText("Build Room: Games Room");
+		buildButtonCombatRoom.setText("Build Room: Combat Room");
+		buildButtonQuestHall.setText("Build Room: Quest Hall");
+		buildButtonStudy.setText("Build Room: Study");
+		buildButtonCostumeRoom.setText("Build Room: Costume Room");
+		buildButtonChapel.setText("Build Room: Chapel");
+		buildButtonPortalChamber.setText("Build Room: Portal Chamber");
+		buildButtonFormalGarden.setText("Build Room: Formal Garden");
+		buildButtonThroneRoom.setText("Build Room: Throne Room");
+		buildButtonOubliette.setText("Build Room: Oubliette");
+		buildButtonDungeonCorridor.setText("Build Room: Dungeon Corridor");
+		buildButtonDungeonJunction.setText("Build Room: Dungeon Junction");
+		buildButtonDungeonStairs.setText("Build Room: Dungeon Stairs");
+		buildButtonTreasureRoom.setText("Build Room: Treasure Room");
 
 		buildButtonGarden.addMouseListener(this);
 		buildButtonParlour.addMouseListener(this);
@@ -562,23 +842,12 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 			System.out.println("Clicked on room: overviewRoom"+roomKey+" type: "+roomHash.get(roomKey).getRoomType());
 			
 			goToRoomFromGrid(roomKey);
-		} else if(e.getSource().toString().contains("Build a")) {
+		} else if(e.getSource().toString().contains("Build Room:")) {
 			
 			//hide building pane
 			roomBuildingFrame.setVisible(false);
 			
-			String calcRoomType;
-			String roomType = "";
-			splitArray = null;
-			
-			//work out which room build button has been clicked
-			splitArray = e.getSource().toString().split( "," );
-			calcRoomType = splitArray[splitArray.length - 2];
-			
-			//would probably work better with a regex, but this works, so heh
-			for(int i = 13; i < calcRoomType.length(); i++){
-				roomType += calcRoomType.charAt(i);
-			}
+			String roomType = calculatePressedBuildButtonBasedOnName(e.getSource().toString());
 
 			System.out.println(overviewViewingLevel + "     build   " + overviewSelectedRoom + "     (" + roomType + ")");
 			//build the selected room
@@ -589,12 +858,43 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 			//createAndShowGrid(overviewViewingLevel);
 			createAndShowRoom(overviewSelectedRoom);
 			overviewSelectedRoom = "";
+		} else if(e.getSource().toString().contains("Build Furniture:")) {
+			String furniType = calculatePressedBuildButtonBasedOnName(e.getSource().toString());
+
+			createFurniBuildingFrameContent(furniType);
+			System.out.println(furniType);
 		}
 		else {
-			//System.out.println(e);
+			System.out.println(e);
 		}
 		//System.out.println(e.getSource().toString());
 		
+	}
+	
+	public String calculatePressedBuildButtonBasedOnName(String source){
+		
+		String calcItemType;
+		String itemType = "";
+		splitArray = null;
+		int startPosition = 0;
+		
+		//work out which build button has been clicked
+		splitArray = source.split( "," );
+		calcItemType = splitArray[splitArray.length - 2];
+		
+		//works out whether it's a Room or Furniture or something else button
+		if(calcItemType.contains("Build Furniture:")){
+			startPosition = 22;
+		} else if(calcItemType.contains("Build Room:")){
+			startPosition = 17;
+		}
+		
+		//would probably work better with a regex, but this works, so heh
+		for(  ; startPosition < calcItemType.length(); startPosition++){
+			itemType += calcItemType.charAt(startPosition);
+		}
+		
+		return itemType;
 	}
 
 	public void mouseEntered(MouseEvent e) {
@@ -617,6 +917,102 @@ public class POHPlanner extends JApplet implements ActionListener, MouseListener
 		
 	}
 
+	/**
+     * Performs a hiscore lookup on the specified name.
+     * @return "ok" on success, otherwise an error message.
+     */
+    private String hiscoreLookup() {
+        BufferedReader in = null;
+        URL url = null;
+        HttpURLConnection hiscoreHTTP = null;
+        String line = null;
+        String hiscoreURL = "http://hiscore.runescape.com/index_lite.ws?player=" + username;
+        String[] linePieces = null;
+        int lineNumber = 0;
+        int responseCode = 0;
+        
+        try {
+            url = new URL( hiscoreURL );
+            hiscoreHTTP = (HttpURLConnection)url.openConnection();
+            hiscoreHTTP.setUseCaches( false );
+            hiscoreHTTP.setRequestMethod( "GET" );
+            hiscoreHTTP.connect();
+            responseCode = hiscoreHTTP.getResponseCode();
+        } catch( IOException e ) { }
+        
+        if( responseCode == 404 ) {
+            return username + " does not appear to be in the RuneScape Hiscores.";
+        }
+        else if( responseCode != 200 ) {
+            return "The calculator was unable to connect to the RuneScape Hiscore server.";
+        }
+        
+        try {
+            in = new BufferedReader( new InputStreamReader( url.openStream() ) );
+            
+            while( ( line = in.readLine() ) != null ) {
+                linePieces = line.split( "," );
+                
+                if( linePieces.length != 3 ) {
+                    continue;
+                }
+                
+                hiscoreList.add( lineNumber++, new HiscoreData(
+                    Integer.parseInt( linePieces[0] ), 
+                    Integer.parseInt( linePieces[1] ), 
+                    Integer.parseInt( linePieces[2] ) 
+                ) );
+            }
+            
+            in.close();
+            in = null;
+            hiscoreHTTP.disconnect();
+            hiscoreHTTP = null;
+        } catch( IOException e ) { }
+        
+        return "ok";
+    }
 	
+	/**
+     * This class is essential for multi-threading to work while performing a 
+     * hiscore lookup. Otherwise, the applet will freeze while the hiscore data
+     * is retrieved.
+     * 
+     * @author Rick
+     * @version 2.1
+     * @date 4 January 2009
+     *
+     */
+    private class RuneScapeHiscore extends Thread {
+        
+        /**
+         * Constructor.
+         */
+        public RuneScapeHiscore() {
+            super( "HiscoreThread" );
+            start();
+        }
+        
+        /**
+         * Run the hiscore lookup.
+         */
+        public void run() {
+            String result = null;
+            
+            //fetchButton.setText( "Fetching..." );
+            //fetchButton.setEnabled( false );
+            result = hiscoreLookup();
+            //fetchButton.setText( "Fetch My Exp!" );
+            //fetchButton.setEnabled( true );
+                        
+            if( result != "ok" ) {
+                JOptionPane.showMessageDialog( null, result, "An Error Occurred", 
+                        JOptionPane.ERROR_MESSAGE );
+            }
+            else {            
+                //update various things to do with the highscores
+            }
+        }
+    }
 	
 }

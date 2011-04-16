@@ -9,7 +9,7 @@ public class Room {
 	private int cost;
 	private boolean[] doorLayout;
 	private int furniSpots;
-	private Object[] hotspots;
+	private Hotspot[] hotspots;
 	private int floor;
 	private boolean selected;
 	private String imageURL;
@@ -47,7 +47,7 @@ public class Room {
         this.level = 1;
         this.cost = 0;
         this.doorLayout = new boolean[]{false, false, false, false};
-        this.hotspots = new Object[0];
+        this.hotspots = new Hotspot[0];
         this.imageURL = calculateRoomDoors();
 	}
 	
@@ -56,7 +56,7 @@ public class Room {
         this.level = 1;
         this.cost = 0;
         this.doorLayout = new boolean[]{false, false, false, false};
-        this.hotspots = new Object[0];
+        this.hotspots = new Hotspot[0];
         this.imageURL = calculateRoomDoors();
 	}
 	
@@ -65,7 +65,7 @@ public class Room {
         this.level = 1;
         this.cost = 1000;
         this.doorLayout = new boolean[]{true, true, true, true};
-        this.hotspots = new Object[] {
+        this.hotspots = new Hotspot[] {
         	new Hotspot("Centrepiece"),
         	new Hotspot("Tree"),
         	new Hotspot("Big Tree"),
@@ -83,7 +83,7 @@ public class Room {
         this.level = 1;
         this.cost = 1000;
         this.doorLayout = new boolean[]{false, true, true, true};
-        this.hotspots = new Object[]{
+        this.hotspots = new Hotspot[]{
         	new Hotspot("Chairs"),
         	new Hotspot("Chairs"),
         	new Hotspot("Chairs"),
@@ -198,10 +198,10 @@ public class Room {
 	public void setFurniSpots(int newFurniSpots){
 		furniSpots = newFurniSpots;
 	}
-	public Object[] getHotspots(){
+	public Hotspot[] getHotspots(){
 		return hotspots;
 	}
-	public void setHotspots(Object[] newHotspots){
+	public void setHotspots(Hotspot[] newHotspots){
 		hotspots = newHotspots;
 	}
 	public int getFloor(){

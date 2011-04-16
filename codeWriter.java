@@ -68,6 +68,10 @@ public class codeWriter {
 			System.out.println("roomBuildingScrollPanel.add(buildButton" + roomTypesNoSpaces[i] + ");");
 			
 		}
+		System.out.println();
+		for(int k = 0; k < roomTypes.length; k++){
+			System.out.println("buildButton" + roomTypesNoSpaces[k] + ".setToolTipText(\"Build a " + roomTypes[k] + "\");");
+		}
 	}
 
 }
