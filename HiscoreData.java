@@ -1,11 +1,7 @@
-package pohplanner;
-
 /**
  * This class manages all data for hiscore lookups, including level, xp and rank.
  * 
- * Originally written for the Skill Calcs, modified for the POH Planner.
- * 
- * @author Rick (Salmoneus), Neo Avatars
+ * @author Rick (Salmoneus)
  * @version 2.1
  * @date 04 January 2009
  */
@@ -14,10 +10,8 @@ public class HiscoreData {
     int level;
     int rank;
     int xp;
-    boolean isHiscoreData;
     
-    public HiscoreData( int rank, int level, int xp, boolean isHiscoreData ) {
-    	
+    public HiscoreData( int rank, int level, int xp ) {
         this.level = level;
         this.rank = rank;
         this.xp = xp;
@@ -45,12 +39,5 @@ public class HiscoreData {
 
     public void setXp( int xp ) {
         this.xp = xp;
-    }
-    public boolean getIsHiscoreData() {
-        return isHiscoreData;
-    }
-
-    public void setIsHiscoreData( boolean isHiscoreData ) {
-        this.isHiscoreData = isHiscoreData;
     }
 }

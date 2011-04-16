@@ -1,5 +1,3 @@
-package pohplanner;
-
 import javax.swing.JButton;
 
 public class Hotspot {
@@ -8,15 +6,9 @@ public class Hotspot {
 	private Furniture[] furniTypes;
 	private Furniture active;
 	private JButton hotspotButton;
-	private int[][] xCoords;
-	private int[][] yCoords;
-	private int[] numberOfPoints;
 	
-	public Hotspot( String type, int[][] xCoords, int[][] yCoords, int[] points ){
-		this.xCoords = xCoords;
-		this.yCoords = yCoords;
-		this.numberOfPoints = points;
-	    
+	public Hotspot( String type ){
+		
 		//make sure names later in the list do not contain something earlier on
 		//eg. 'Big Tree' must come before 'Tree' otherwise it won't get there
 		
@@ -34,31 +26,7 @@ public class Hotspot {
 			initBigPlant1();
 		} else if(type.contains("Big Plant 2")){
 			initBigPlant2();
-		} else if(type.contains("Chairs")){
-			initChairs();
-		} else if(type.contains("Rugs")){
-			initRugs();
-		} else if(type.contains("Fireplace")){
-			initFireplace();
-		} else if(type.contains("Curtains")){
-			initCurtains();
-		} else if(type.contains("Bookcases")){
-			initBookcases();
-		} else if(type.contains("Kitchen Table")){
-			initKitchenTable();
-		} else if(type.contains("Larder")){
-			initLarder();
-		} else if(type.contains("Sink")){
-			initSink();
-		} else if(type.contains("Shelf")){
-			initShelf();
-		} else if(type.contains("Stove")){
-			initStove();
-		} else if(type.contains("Barrel")){
-			initBarrel();
-		} else if(type.contains("Cat Basket")){
-			initCatBasket();
-		}
+		} 
 		
 		createHotspotButton();
 	}
@@ -127,7 +95,7 @@ public class Hotspot {
 		this.type = "Big Plant 1";
 		this.furniTypes = new Furniture[] {
 			new Furniture("None"),
-			new Furniture("Fern "), //space stops it getting confused with the other Fern
+			new Furniture("Fern"),
 			new Furniture("Bush"),
 			new Furniture("Tall Plant"),
 		};
@@ -144,155 +112,10 @@ public class Hotspot {
 		this.active = new Furniture("None");
 	}
 	
-	private void initChairs(){
-		this.type = "Chairs";
-		this.furniTypes = new Furniture[] {
-			new Furniture("None"),
-			new Furniture("Crude Wooden Chair"),
-			new Furniture("Wooden Chair"),
-			new Furniture("Rocking Chair"),
-			new Furniture("Oak Chair"),
-			new Furniture("Oak Armchair"),
-			new Furniture("Teak Armchair"),
-			new Furniture("Mahogany Armchair"),
-		};
-		this.active = new Furniture("None");
-	}
-	
-	private void initRugs(){
-		this.type = "Rugs";
-		this.furniTypes = new Furniture[] {
-			new Furniture("None"),
-			new Furniture("Brown Rug"),
-			new Furniture("Rug"),
-			new Furniture("Opulent Rug"),
-		};
-		this.active = new Furniture("None");
-	}
-	
-	private void initFireplace(){
-		this.type = "Fireplace";
-		this.furniTypes = new Furniture[] {
-			new Furniture("None"),
-			new Furniture("Clay Fireplace"),
-			new Furniture("Stone Fireplace"),
-			new Furniture("Marble Fireplace"),
-		};
-		this.active = new Furniture("None");
-	}
-	
-	private void initCurtains(){
-		this.type = "Curtains";
-		this.furniTypes = new Furniture[] {
-			new Furniture("None"),
-			new Furniture("Torn Curtains"),
-			new Furniture("Curtains"),
-			new Furniture("Opulent Curtains"),
-		};
-		this.active = new Furniture("None");
-	}
-	
-	private void initBookcases(){
-		this.type = "Bookcases";
-		this.furniTypes = new Furniture[] {
-			new Furniture("None"),
-			new Furniture("Wooden Bookcase"),
-			new Furniture("Oak Bookcase"),
-			new Furniture("Mahogany Bookcase"),
-		};
-		this.active = new Furniture("None");
-	}
-	
-	private void initKitchenTable(){
-		this.type = "Kitchen Table";
-		this.furniTypes = new Furniture[] {
-			new Furniture("None"),
-			new Furniture("Wood Table"),
-			new Furniture("Oak Table"),
-			new Furniture("Teak Table"),
-		};
-		this.active = new Furniture("None");
-	}
-	
-	private void initLarder(){
-		this.type = "Larder";
-		this.furniTypes = new Furniture[] {
-			new Furniture("None"),
-			new Furniture("Wooden Larder"),
-			new Furniture("Oak Larder"),
-			new Furniture("Teak Larder"),
-		};
-		this.active = new Furniture("None");
-	}
-	
-	private void initSink(){
-		this.type = "Sink";
-		this.furniTypes = new Furniture[] {
-			new Furniture("None"),
-			new Furniture("Pump and Drain"),
-			new Furniture("Pump and Tub"),
-			new Furniture("Sink"),
-		};
-		this.active = new Furniture("None");
-	}
-	
-	private void initShelf(){
-		this.type = "Shelf";
-		this.furniTypes = new Furniture[] {
-			new Furniture("None"),
-			new Furniture("Wooden Shelves 1"),
-			new Furniture("Wooden Shelves 2"),
-			new Furniture("Wooden Shelves 3"),
-			new Furniture("Oak Shelves 1"),
-			new Furniture("Oak Shelves 2"),
-			new Furniture("Teak Shelves 1"),
-			new Furniture("Teak Shelves 2"),
-		};
-		this.active = new Furniture("None");
-	}
-	
-	private void initStove(){
-		this.type = "Stove";
-		this.furniTypes = new Furniture[] {
-			new Furniture("None"),
-			new Furniture("Firepit"),
-			new Furniture("Firepit with Hook"),
-			new Furniture("Firepit with Pot"),
-			new Furniture("Small Oven"),
-			new Furniture("Large Oven"),
-			new Furniture("Steel Range"),
-			new Furniture("Fancy Range"),
-		};
-		this.active = new Furniture("None");
-	}
-	
-	private void initBarrel(){
-		this.type = "Barrel";
-		this.furniTypes = new Furniture[] {
-			new Furniture("None"),
-			new Furniture("Beer Barrel"),
-			new Furniture("Cider Barrel"),
-			new Furniture("Asgarnian Ale"),
-			new Furniture("Greenmans Ale"),
-			new Furniture("Dragon Bitter"),
-			new Furniture("Chefs Delight"),
-		};
-		this.active = new Furniture("None");
-	}
-	
-	private void initCatBasket(){
-		this.type = "Cat Basket";
-		this.furniTypes = new Furniture[] {
-			new Furniture("None"),
-			new Furniture("Cat Blanket"),
-			new Furniture("Cat Basket"),
-			new Furniture("Cushioned Basket"),
-		};
-		this.active = new Furniture("None");
-	}
-	
 	private void createHotspotButton(){
 		this.hotspotButton = new JButton("Build Furniture: " + this.type);
+		System.out.println("Active: " + active);
+		System.out.println("Type: " + type);
 	}
 	
 	public String getHotspotType(){
@@ -320,15 +143,4 @@ public class Hotspot {
 		hotspotButton = newHotspotButton;
 	}
 	
-	public int[][] getXCoords() {
-	    return this.xCoords;
-	}
-	
-	public int[][] getYCoords() {
-	    return this.yCoords;
-	}
-	
-	public int[] getNumberOfPoints() {
-	    return this.numberOfPoints;
-	}
 }
