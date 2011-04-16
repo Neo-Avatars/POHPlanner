@@ -2,8 +2,6 @@ var AOffset = 65;
 
 //example code with 14 rooms
 //CEKB,FDEE,FFKG,UCCD,UDKB,UEBC,VDBC,WEIF,YHEE,YICD,eDIF,fDIF,gEBC,iHCD
-//with 20
-//BEKB,EDEE,EFKG,TCCD,TDKB,TEBC,UCOB,UDBC,UEBC,VBIF,VCBC,VDKG,VEIF,WBOB,WDBC,XHEE,XICD,dDIF,eDIF,fEBC
 
 /*Calculates the Sharing Code for the house
 Requires a house array as a parameter so that it can be used to make rotating the house easier
@@ -21,7 +19,7 @@ function calculateSharingCode(houseArrayToUse){
 					}
 					code += calculateCharsFromRoomLocation(i, j, k);
 					code += calculateCharFromDoorLayout(i, j, k, houseArrayToUse);
-					code += houseArrayToUse[i][j][k].typeID;
+					code += houseArrayToUse[i][j][k].type;
 				}
 			}
 		}
@@ -41,7 +39,7 @@ function calculateSharingCode(houseArrayToUse){
 function loadHouseFromSharingCode(code){
 	//console.time("load house");
 	$house.loading = true;
-	hideVisibleFrames();
+	
 	//reset the house
 	if($house.initialised){
 		resetHouse();
@@ -76,26 +74,15 @@ function loadHouseFromSharingCode(code){
 		}
 		setSharingCodeInputBoxValue(code);
 	}
-	//call only at the end, not after each room is built
-	updateNumberOfRooms();
-	updateRoomsCost();
-	updateTotalCost();
-	
 	$house.loading = false;
 	//console.timeEnd("load house");
 }
 
 /*Loads the default house */
 function loadDefaultHouse(){
-	switchToOverviewMode(); //needs to be done before loading the new house otherwise there are problems with the selected room and it will cause errors
 	var code = "UDOB,UEBC"; //default
 	$.cookie('pohPlannerSharingCode', code);
 	loadHouseFromSharingCode(code);
-	//make it so you're viewing the ground floor
-	hideSelectedOverviewFloor();
-	$house.visibleOverviewFloor = 1;
-	$('#floorSelectDropDown').val('groundFloor');
-	showSelectedOverviewFloor();
 }
 
 /*Sets the value of the Sharing Code input box */
@@ -109,9 +96,8 @@ function resetHouse(){
 	for(var i = 0; i < 3; i++){
 		for(var j = 0; j < 9; j++){
 			for(var k = 0; k < 9; k++){
-				//if there's a room built there
 				if(houseArray[i][j][k].labelText !== ' '){
-					demolishRoom3(i, j, k); //demolish it
+					demolishRoom3(i, j, k);
 				}
 			}
 		}

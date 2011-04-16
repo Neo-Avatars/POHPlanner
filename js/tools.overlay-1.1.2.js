@@ -35,7 +35,7 @@
 			
 			close: null,	
 			oneInstance: true,
-			closeOnClick: true,
+			closeOnClick: false,
 			closeOnEsc: true, 
 			api: false,
 			expose: null/*{
@@ -79,7 +79,7 @@
 			 overlay,
 			 opened,
 			 expose = conf.expose && $.tools.expose.version;
-		//console.log(trigger,conf, trigger.parent().parent().attr('id'));
+		
 		// get overlay and triggerr
 		var jq = conf.target || trigger.attr("rel");
 		overlay = jq ? $(jq) : null || trigger;	
@@ -309,7 +309,7 @@
 		
 		closers.click(function(e) {
 			self.close(e);  
-		});			
+		});					
 	}
 	
 	// jQuery plugin initialization

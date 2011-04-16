@@ -4,13 +4,12 @@
 <title>POHPlanner</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <link type="text/css" href="css/POHPlanner.css" rel="stylesheet"  media="screen" />
-<script type="text/javascript" src="js/jquery-1.4.2.js"></script>
+<script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery.maphilight.min.js"></script>
 <script type="text/javascript" src="js/atooltip.jquery.js"></script>
 <script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>
-<script type="text/javascript" src="js/jquery.cookies.js"></script>
-<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-<!--<script type="text/javascript" src="js/facebox.js"></script>-->
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/facebox.js"></script>
 <script type="text/javascript" src="js/tools.overlay-1.1.2.js"></script>
 <script type="text/javascript" src="js/tools.expose-1.0.5.js"></script>
 <script type="text/javascript" src="js/POH-rooms.js"></script>
@@ -20,21 +19,15 @@
 <script type="text/javascript" src="js/POH-SharingCode.js"></script>
 <script type="text/javascript" src="js/POH-transformation.js"></script>
 <script type="text/javascript" src="js/POHPlanner.js"></script>
+
 </head>
 <body>
 
 <div id="topPadding"></div>
+
 <div id="POHPlanner">
-<div id="Ctrl-U_is_totally_ftw_though_you_need_to_do_more_searching_to_find_anything_interesting">
-	<noscript>
-		You will need to enable JavaScript to use this tool.
-	</noscript>
+<div id="Ctrl-U_is_totally_ftw_though_you_need_to_do_more_searching_to_find_anything_interesting"></div>
 </div>
-</div>
-
-<div id="debug"></div>
-
-<div id="extra">
 
 <div id="modalMessages">
 <div id="errorMessages"></div>
@@ -46,7 +39,7 @@
 		specified Construction level allows.</p>
 		<p>Are you sure want to continue?</p>
 		
-		<p id="maxRoomLimitButtons" class="modalConfirmationButtons">
+		<p id="maxRoomLimitButtons" class="modalConfirmationButtons" error="maxRoomLimit">
 			<button class="close">Yes</button>
 			<button class="close">No</button>
 		</p>
@@ -55,11 +48,11 @@
 	<div class="modal" id="demolishOnMove">
 		<h2>Movement will Demolish Rooms</h2>
 		
-		<p>There are rooms in the <span id="moveHouseCompassDirection">north</span> side of the house
-		which will be demolished if you move the house any further.</p>
+		<p>There are rooms in the <span id="moveHouseCompassDirection">north</span> side of the house which will
+		be demolished if you move the house any further.</p>
 		<p>Are you sure want to continue?</p>
 		
-		<p id="demolishOnMoveButtons" class="modalConfirmationButtons">
+		<p id="demolishOnMoveButtons" class="modalConfirmationButtons" error="demolishOnMove">
 			<button class="close">Yes</button>
 			<button class="close">No</button>
 		</p>
@@ -67,27 +60,13 @@
 </div>
 </div>
 
-<div id="houseSettingsFrame" class="facebox"><div class="faceboxInner"></div></div>
+<div id="houseSettingsFrame" style="display:none;"></div>
 
-<div id="userStatsFrame" class="facebox"><div class="faceboxInner"></div></div>
-
-<div id="roomBuildingFrame" class="facebox"><div class="faceboxInner"></div></div>
-
-<div id="realityCheckFrame" class="facebox"><div class="faceboxInner"></div></div>
-
-
+<div id="userStatsFrame" style="display:none;">
+<div id="userStatsFrameInner" class="faceboxScrollPane"></div>
 </div>
 
-<!--<div id="faq">
-<h2>FAQ</h2>
-<p><h4>Why doesn't it do / I want it to be able to do... x / y / z?</h4>
-Mention it and I'll see what can be done.</p>
-<p><h4>Why aren't all the rooms real / Why are some rooms missing?</h4>
-They've not all been added and a couple of the fake ones are being used for testing.</p>
-<p><h4>How do I change a setting that I set to be remembered?</h4>
-When you refresh the page, any remembered settings will be forgotten. The house, however, will be 
-remembered so long as you allow cookies to be set.</p>
-</div>-->
+<div id="roomBuildingFrame" class="faceboxScrollPane" style="display:none;"></div>
 
 <!--<img src="java screenshot.png" />
 

@@ -9,11 +9,14 @@ function createTopBarDivs(){
 	return divs;
 }
 
-/*Creates the DIVs for the sections within the Top Bar as well as the content that goes within them
+/*Creates the content for the #topBarSharingDiv
 Returns the constructed HTML */
-function createTopBar(){
-	var content = '<div id="topBarMenu" class="POHmenu">' + createTopBarMenu() + '</div>\
-	<div id="topBarSharingDiv">' + createTopBarSharingContent() + '</div>';
+function createTopBarSharingContent(){
+	var content = '<span id="sharingCodeLabel">House Plan:</span> \
+	<input type="text" name="sharingCodeInput" class="sharingCodeInput" id="sharingCodeInput"\
+		title="The code for the house which can be used to share the house design with friends" />\
+	<input type="submit" value="Load" class="loadSharingCodeButton"\
+			id="loadSharingCodeButton" title="Load house design from code" />';
 	
 	return content;
 }
@@ -35,10 +38,10 @@ function createTopBarMenu(){
 			<li><a href="#">Move House<!--[if IE 7]><!--></a><!--<![endif]-->\
 			<!--[if lte IE 6]><table><tr><td><![endif]-->\
 				<ul id="moveHouseList">\
-					<li><a href="#" rel="#demolishOnMove" id="moveHouseNorth">Move House Up</a></li>\
-					<li><a href="#" rel="#demolishOnMove" id="moveHouseSouth">Move House Down</a></li>\
-					<li><a href="#" rel="#demolishOnMove" id="moveHouseWest">Move House Left</a></li>\
-					<li><a href="#" rel="#demolishOnMove" id="moveHouseEast">Move House Right</a></li>\
+					<li><a href="#" rel="#demolishOnMove" xDirection="true" positiveDirection="false" compass="north">Move House Up</a></li>\
+					<li><a href="#" rel="#demolishOnMove" xDirection="true" positiveDirection="true" compass="south">Move House Down</a></li>\
+					<li><a href="#" rel="#demolishOnMove" xDirection="false" positiveDirection="false" compass="west">Move House Left</a></li>\
+					<li><a href="#" rel="#demolishOnMove" xDirection="false" positiveDirection="true" compass="east">Move House Right</a></li>\
 				</ul>\
 			<!--[if lte IE 6]></td></tr></table></a><![endif]-->\
 			</li>\
@@ -76,18 +79,6 @@ function createTopBarMenu(){
 	return content;
 }
 
-/*Creates the content for the #topBarSharingDiv
-Returns the constructed HTML */
-function createTopBarSharingContent(){
-	var content = '<span id="sharingCodeLabel">House Plan:</span> \
-	<input type="text" name="sharingCodeInput" class="sharingCodeInput" id="sharingCodeInput"\
-		title="The code for the house which can be used to share the house design with friends" />\
-	<input type="submit" value="Load" class="loadSharingCodeButton"\
-			id="loadSharingCodeButton" title="Load house design from code" />';
-	
-	return content;
-}
-
 /*-THE HOUSE ITSELF */
 
 /*Creates all the DIVs and base HTML for the house
@@ -109,7 +100,7 @@ function createHouse(){
 				//don't link things on the top floor since you can't build in the air
 				inner = i === 2 ? ' ' : '<span><a href="#roomBuildingFrame"\
 					onclick="setSelectedRoom('+i+','+j+','+k+');return false;"\
-						class="overviewLink faceboxLink" rel="#roomBuildingFrame">' +
+						class="overviewLink faceboxLink">' +
 							houseArray[i][j][k].labelText + '</a></span>';
 				//console.log(houseArray[i][j][k].doorImageURL);
 				roomsStr += '<div id="room' + i + j + k + '" class="room ' + houseArray[i][j][k].doorImageURL +
@@ -187,10 +178,6 @@ function createInfoPanelFloorSelectDropDown(){
 Returns the HTML */
 function createInfoPanelFloorAndCharStatsContent(){
 	var content = '<table id="floorAndCharStatsTable">\
-	<tr id="facsTableR0" class="hidden">\
-		<td colspan="2"><input type="submit" value="Return to House Overview" onclick="switchToOverviewMode();return false;"\
-			id="returnToOverviewModeButton" title="Return to the House Overview mode" /></td>\
-	</tr>\
 	<tr title="Choose which floor of the house to view" id="facsTableR1">\
 		<td><span class="floorAndCharStatsHeading">View Floor: </span></td>\
 		<td>' + createInfoPanelFloorSelectDropDown() + '</td>\
@@ -201,7 +188,8 @@ function createInfoPanelFloorAndCharStatsContent(){
 			maxlength="12" /></td>\
 	</tr>\
 	<tr>\
-		<td><input type="submit" value="Stats" class="openCharStatsButton" rel="#userStatsFrame"\
+		<td><input type="submit" value="Stats" class="openCharStatsButton"\
+			onclick="$.facebox($(\'#userStatsFrame\').html());return false;"\
 			id="openCharStatsButton" title="View and edit your stats and completed quests" /></td>\
 		<td><input type="submit" value="Fetch My Exp!" class="fetchCharStatsButton"\
 			id="fetchCharStatsButton" title="Fetch your stats from the RuneScape Hiscores" /></td>\
@@ -234,12 +222,11 @@ function createUserStatsTable(){
 	//and the rows themselves	
 	//http://stackoverflow.com/questions/722668/traverse-all-the-nodes-of-a-json-object-tree-with-javascript
 	$.each($stats, function(key,val){
-		//value must be the first attribute of the input so that it sorts by value rather than skill name
 		content += '<tr id="userStatsRow' + key + '" class="userStatsRow">\
 			<td class="userStatsIconCell"><img src="skillIcons/' + key + '.gif" alt="' + key + '" width="18" height="18" /></td>\
 			<td class="userStatsNameCell">' + capitaliseString(key) + '</td>\
 			<td class="userStatsLevelCell">\
-				<input value="' + val + '" class="userStatsInput" type="text" name="' + key + '"maxlength="2" />\
+				<input class="userStatsInput" type="text" name="' + key + '"maxlength="2" value="' + val + '" />\
 			</td>\
 		</tr>';
 	});
@@ -254,8 +241,9 @@ function createUserStatsTable(){
 /*Generates a table for the House or Room Stats.
 Returns the HTML for the table*/
 function generateInfoPanelStatsTable(tableContent, id, heading){
-	var content = '<div><table id="' + id + '">\
-	<tr><th colspan="2" class="statsTableHeading">' + heading + ' Stats\
+	var content = '<table id="' + id + '">\
+	<tr><th colspan="2" class="statsTableHeading">\
+		<span class="statsTypeHeading">' + heading + '</span> Stats\
 	</th></tr>';
 	
 	//loop through each of the pieces of info that wants displaying
@@ -268,7 +256,7 @@ function generateInfoPanelStatsTable(tableContent, id, heading){
 		</tr>';
 	}
 	
-	content += '</table></div>';
+	content += '</table>';
 
 	//console.log(content);
 	
@@ -297,7 +285,7 @@ function createRoomStatsButtons(){
 /*Create the table that allows you to build furniture and whatnot
 Returns the HTML for the table */
 function createRoomBuildingTable(){
-	var table = '';
+	var table = "";
 	
 	//create the headings
 	var headings = [ "Icon", "Type", "Level", "Cost" ];
@@ -314,7 +302,7 @@ function createRoomBuildingTable(){
 		}
 		else {
 		table += '<tr onclick="buildRoom($house.csr[0],$house.csr[1]\
-			,$house.csr[2],'+i+');return false;">\
+			,$house.csr[2],'+i+');$(document).trigger(\'close.facebox\');return false;">\
 			<td class="tablesorterRoomIcon"><img src="buildIcons/' +
 				roomsArray[i][6] + '.gif" alt="' + roomsArray[i][6] + '" width="32" height="32" /></td>\
 			<td>' + roomsArray[i][1] + '</td>\
@@ -341,29 +329,11 @@ function createDialogueStoppingInputs(id){
 	return content;
 }
 
-/*Returns the HTML to append to the buttom of any 'facebox' so that there's something obvious to click on */
-function createFaceboxCloseButton(){
-	var content = '<div class="faceboxClose"><div class="close"></div></div>';
-	
-	return content;
-}
-
 /*-THE SETTINGS FOR THE ABOVE */
 
 /*Returns the HTML for the House Settings div */
 function createHouseSettingsContent(){
-	var content = '<table id="houseSettingsTable"><thead><tr><th colspan="2">House Settings</th></tr></thead><tbody>'
-	
-	$.each($house.noConfSettings, function(key,val){
-		content += '<tr id="houseSettingsRow'+key+'">\
-			<td id="houseSettingsDescription'+key+'">'+val.description+'</td>\
-			<td id="houseSettingsValue'+key+'">\
-				<input type="checkbox" id="houseSettingsCheckbox'+key+'" />\
-			</td>\
-		</tr>';
-	});
-	
-	content += '</tbody></table>';
+	var content = '';
 	
 	return content;
 }

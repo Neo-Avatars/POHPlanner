@@ -33,10 +33,10 @@ jQuery.cookie = function(name, value, options) {
         var path = options.path ? '; path=' + (options.path) : '';
         var domain = options.domain ? '; domain=' + (options.domain) : '';
         var secure = options.secure ? '; secure' : '';
-        //document.cookie = [name, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
+        document.cookie = [name, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
     } else { // only name given, get cookie
         var cookieValue = null;
-        /*if (document.cookie && document.cookie != '') {
+        if (document.cookie && document.cookie != '') {
             var cookies = document.cookie.split(';');
             for (var i = 0; i < cookies.length; i++) {
                 var cookie = jQuery.trim(cookies[i]);
@@ -46,7 +46,7 @@ jQuery.cookie = function(name, value, options) {
                     break;
                 }
             }
-        }*/
+        }
         return cookieValue;
     }
 };
